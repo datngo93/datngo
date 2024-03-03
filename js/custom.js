@@ -49,47 +49,47 @@
   function createMasonry() {
     var data = [{
       "src": 'https://lh3.googleusercontent.com/pw/ABLVV85SbftCv0PT3dUN2vt6axFU6Ku7qoYUhBajSZ2muZqSGtZryUsa0uGZshtYDy5tFUOfCCFRpA8m1gVo6z3Jr4e95Zd2svLP4pZNv0iam0QvXJw6PvLvgsFuiDbsgU_exS6Ex-BMUoQCbUGzO3zoX2sv=w727-h969-s-no-gm?authuser=0',
-      "credit": 'Credit: <a href="https://photos.app.goo.gl/cgeSyiJSJVqcvEp7A" target="_blank">Dat Ngo</a>',
+      "credit": 'Credit: Dat Ngo',
       "caption": 'Da Lat'
     }, {
       "src": 'https://lh3.googleusercontent.com/pw/ABLVV85tUwbWPNgEfNtYa17W90P7eY1MckgGXnRdNSUUKEFKxwtRBLin8_O0fqUnpauN17URZOM9gTWiaLfw99mluveL1KUsYzIWYKmpaQPpBBDAVjksW0QHTTEBkJ6vXj_40mYA9lGl4BDxZ3zipVSnMBbq=w1292-h969-s-no-gm?authuser=0',
-      "credit": 'Credit: <a href="https://photos.app.goo.gl/cgeSyiJSJVqcvEp7A" target="_blank">Dat Ngo</a>',
+      "credit": 'Credit: Dat Ngo',
       "caption": 'Busan'
     }, {
       "src": 'https://lh3.googleusercontent.com/pw/ABLVV87_za-C7bvseFuAtOlXnuOsCzt7tM3msVkPHffUFwyMsmXTU4U4LeQKdm6e1j6ske8rZhvAt4ogqpBPZmhRygvNFqNUWQDMfXizwM25-VyshxhsoP-blGI9Z8-AjI0-RZHU0FRca535yl7GBJJu9UrW=w1292-h969-s-no-gm?authuser=0',
-      "credit": 'Credit: <a href="https://photos.app.goo.gl/cgeSyiJSJVqcvEp7A" target="_blank">Dat Ngo</a>',
+      "credit": 'Credit: Dat Ngo',
       "caption": 'Seoul'
     }, {
       "src": 'https://lh3.googleusercontent.com/pw/ABLVV87RASyHDqXtvhCJyTnNtm4-LydbCzoWh95W3gCdqxw925dGv3xYApZJEZGa4miW7A4MHx0TniWlKrT9kGFA2O1n5PkD3un5ut40c1PbKhNeKW4-uAR2couUu0SCoi4-5UWKepbjpifpeXpgTGFAMphB=w727-h969-s-no-gm?authuser=0',
-      "credit": 'Credit: <a href="https://photos.app.goo.gl/cgeSyiJSJVqcvEp7A" target="_blank">Dat Ngo</a>',
+      "credit": 'Credit: Dat Ngo',
       "caption": 'Da Lat'
     }, {
       "src": 'https://lh3.googleusercontent.com/pw/ABLVV86lDj9phRkzhWQdKq1OMYMZLmQcycO0rODE6YH7DQlv-Z8OesVjg02ffYzz6PEBNP08XTCMmcdJCI3znYCFWPtW92GdXIuUHK6GIR0NvAXqtA-xcrkmTGs6Agn54RnYGZjjMUQFvpHKjp-Ci_M28DmJ=w919-h969-s-no-gm?authuser=0',
-      "credit": 'Credit: <a href="https://photos.app.goo.gl/cgeSyiJSJVqcvEp7A" target="_blank">Dat Ngo</a>',
+      "credit": 'Credit: Dat Ngo',
       "caption": 'Da Lat'
     }, {
       "src": 'https://lh3.googleusercontent.com/pw/ABLVV845fQ2isigLyi6FgN1EBvO06SIfNZHDd-QH4BKmkX3BhmEy_FkgKxjnD8hO-yysqUFherbrv13SV2vbT1bJcp_bWFGBwCuzDrLAJ06QnhlEz125o6BhwoWNObvZb45hWadOVlRfDRhbKP_9Ty8fHqz_=w727-h969-s-no-gm?authuser=0',
-      "credit": 'Credit: <a href="https://photos.app.goo.gl/cgeSyiJSJVqcvEp7A" target="_blank">Dat Ngo</a>',
+      "credit": 'Credit: Dat Ngo',
       "caption": 'Hue'
     }, {
       "src": 'https://lh3.googleusercontent.com/pw/ABLVV85CEcRNyD-vqvnGuUiHaHsrKGeYNqVSFcma2z2MnseAOPQoj501xFTswT8APo2FcTFL7Xw2i2_nZP-KRyd5t2EScffBAQXQ014mXE69MFgkna2TxClHb2hMkBqGIkD7JG6kqfpXYf_O-0-YIX_ufNF4=w646-h969-s-no-gm?authuser=0',
-      "credit": 'Credit: <a href="https://photos.app.goo.gl/cgeSyiJSJVqcvEp7A" target="_blank">Dat Ngo</a>',
+      "credit": 'Credit: Dat Ngo',
       "caption": 'Wedding, Busan'
     }, {
       "src": 'https://lh3.googleusercontent.com/pw/ABLVV85cIhO3ZWwZKbK8grWyg1BhoAPMaZddIEzff_dsJNmcfeGWcJUoMAnjJONxYd0qXMotOqVhKVEzmNWOz_p2QL50eMHCMY6F_2s0umrgy5Od0Mf-9Q6-nTlC3RBqZMrw2vSxuJ8ZpOH6WvRK4g9fOSu4=w1440-h960-s-no-gm?authuser=0',
-      "credit": 'Credit: <a href="https://photos.app.goo.gl/cgeSyiJSJVqcvEp7A" target="_blank">Dat Ngo</a>',
+      "credit": 'Credit: Dat Ngo',
       "caption": 'Wedding, Busan'
     }, {
       "src": 'https://lh3.googleusercontent.com/pw/ABLVV855o-epZLr6wniqR1agmoZQ3H0-r-vo2peSYp2hMThYAok6V7cSvOtRWxVoX8Y8A5EZbDTSudjJRYfFlK1efpXnQx0B5trkQkZKwp3xbd7H2QuRnBS-3_2hwBcNUL2ie5dLVNYoKH52mEqIMA9s-8gp=w1440-h960-s-no-gm?authuser=0',
-      "credit": 'Credit: <a href="https://photos.app.goo.gl/cgeSyiJSJVqcvEp7A" target="_blank">Dat Ngo</a>',
+      "credit": 'Credit: Dat Ngo',
       "caption": 'Wedding, Busan'
     }, {
       "src": 'https://lh3.googleusercontent.com/pw/ABLVV87lqrovGaM6qOozmTcsDIqZEymR7v_NYVm2Op7BkkHCABV0rJgPhNRChoXiesCq_EeDWxzxb6mXc-QDJ8x6fF35dUIgsCNf0nPqdhoz7BmOSooLQAyFAIPjM_86gw9OO_aVz_tgmehvsWROpBeSqk9g=w565-h969-s-no-gm?authuser=0',
-      "credit": 'Credit: <a href="https://photos.app.goo.gl/cgeSyiJSJVqcvEp7A" target="_blank">Dat Ngo</a>',
+      "credit": 'Credit: Dat Ngo',
       "caption": 'Wedding, Busan'
     }, {
       "src": 'https://lh3.googleusercontent.com/pw/ABLVV87n6EiuJ0FcqNioqZIrRMtXIuWoK138KiK_QqMVXEwQzwERIm_jaUGDOZOHL0LwEZwEZPWYNfm8BYsznfeZzaHOIgXXkYmdIVRYs0ctgcucZVbVB-50nnj3Y8Jr7R00QeF_mh1Lf_Ep3vpj88zQI2OW=w553-h969-s-no-gm?authuser=0',
-      "credit": 'Credit: <a href="https://photos.app.goo.gl/cgeSyiJSJVqcvEp7A" target="_blank">Dat Ngo</a>',
+      "credit": 'Credit: Dat Ngo',
       "caption": 'Wedding, Busan'
     }];
     var $container = $("#masonry");
