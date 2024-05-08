@@ -271,7 +271,65 @@
 		  <br>
         <h3 id="exams" class="mb-4">Exams</h3>
           <hr>
-          <p>To be updated.</p>
+          <p>중간고사 성적 조회: 학번을 입력하고 "조회"을 클릭하세요!</p>
+          <input type="text" id="numberInput">
+          <button onclick="lookupValue()">조회</button>
+
+          <p id="result"></p>
+
+          <script>
+          function lookupValue() {
+            // Get the value entered by the user
+            var number = document.getElementById("numberInput").value;
+  
+            // Define a lookup table (example)
+            var lookupTable = {
+              "2018067": "20.3",
+              "1715138": "100",
+              "1826037": "42.6",
+              "1826041": "5.6",
+              "1826042": "46.2",
+              "1826055": "83.3",
+              "1826056": "20.3",
+              "1826058": "55.6",
+              "1826080": "77.8",
+              "1826095": "87.0",
+              "1922058": "22.2",
+              "1922063": "83.3",
+              "1926001": "25.9",
+              "1926006": "38.9",
+              "1926009": "53.7",
+              "1926012": "5.6",
+              "1926016": "51.8",
+              "1926022": "31.4",
+              "1926030": "68.4",
+              "1926042": "5.6",
+              "1926045": "75",
+              "1926049": "5.6",
+              "1926054": "5.6",
+              "1926066": "77.8",
+              "1926069": "22.2",
+              "1926090": "74",
+              "1926097": "62.9",
+              "1926100": "0",
+              "2026042": "42.6",
+              "2126027": "5.6",
+              "2126050": "91.7",
+              "2126068": "35.1",
+              "2325408": "20.3"
+            };
+  
+            // Check if the entered number exists in the lookup table
+            var result = lookupTable[number];
+  
+            // Display the result
+            if (result !== undefined) {
+              document.getElementById("result").innerHTML = number + "의 성적은 " + result + " 이에요.";
+            } else {
+              document.getElementById("result").innerHTML = "학번과 분반을 확인하세요!";
+            }
+          }
+          </script>
         <h3 id="projects" class="mb-4">Projects</h3>
           <hr>
           <p>To be updated.</p>
