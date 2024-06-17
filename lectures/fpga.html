@@ -331,6 +331,66 @@
             }
           }
           </script>
+          
+          <p>기말고사 성적 조회: 학번을 입력하고 "조회"을 클릭하세요!</p>
+          <input type="text" id="numberInput2">
+          <button onclick="lookupValue2()">조회</button>
+
+          <p id="result2"></p>
+
+          <script>
+          function lookupValue2() {
+            // Get the value entered by the user
+            var number = document.getElementById("numberInput2").value;
+  
+            // Define a lookup table (example)
+            var lookupTable = {
+              "2018067": "20",
+              "1715138": "97.5",
+              "1826037": "25",
+              "1826041": "10",
+              "1826042": "25",
+              "1826055": "95",
+              "1826056": "",
+              "1826058": "30",
+              "1826080": "95",
+              "1826095": "100",
+              "1922058": "15",
+              "1922063": "60",
+              "1926001": "37.5",
+              "1926006": "15",
+              "1926009": "80",
+              "1926012": "15",
+              "1926016": "80",
+              "1926022": "32.5",
+              "1926030": "30",
+              "1926042": "5",
+              "1926045": "60",
+              "1926049": "5",
+              "1926054": "5",
+              "1926066": "92.5",
+              "1926069": "20",
+              "1926090": "100",
+              "1926097": "85",
+              "1926100": "35",
+              "2026042": "20",
+              "2126027": "10",
+              "2126050": "95",
+              "2126068": "50",
+              "2325408": "97.5"
+            };
+  
+            // Check if the entered number exists in the lookup table
+            var result = lookupTable[number];
+  
+            // Display the result
+            if (result !== undefined) {
+              document.getElementById("result2").innerHTML = number + "의 성적은 " + result + " 이에요.";
+            } else {
+              document.getElementById("result2").innerHTML = "학번과 분반을 확인하세요!";
+            }
+          }
+          </script>
         <h3 id="projects" class="mb-4">Projects</h3>
           <hr>
           <p>To be updated.</p>
