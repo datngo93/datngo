@@ -1,0 +1,254 @@
+<!doctype html>
+<html>
+
+<head>
+  <title>Lectures</title>
+  <meta charset="utf-8" name="viewport" content="width=device-width, initial-scale=1">
+  <link href="https://use.fontawesome.com/releases/v5.2.0/css/all.css" media="screen" rel="stylesheet" type="text/css" />
+  <link href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/themes/base/jquery-ui.css" media="screen" rel="stylesheet" type="text/css" />
+  <link href="../css/frame.css" media="screen" rel="stylesheet" type="text/css" />
+  <link href="../css/controls.css" media="screen" rel="stylesheet" type="text/css" />
+  <link href="../css/widgets.css" media="screen" rel="stylesheet" type="text/css" />
+  <link href="../css/custom.css" media="screen" rel="stylesheet" type="text/css" />
+  <link href="../css/doc.css" media="screen" rel="stylesheet" type="text/css" />
+  <link href="../css/lecture/style.css" media="screen" rel="stylesheet" type="text/css" />
+  <link href='https://fonts.googleapis.com/css?family=Open+Sans:400,700' rel='stylesheet' type='text/css'>
+  <link href='https://fonts.googleapis.com/css?family=Open+Sans+Condensed:300,700' rel='stylesheet' type='text/css'>
+  <link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:400,700" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.1/css/all.min.css" />
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+  <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
+  <script src="../js/menu.js"></script>
+  <script src="../js/footer.js"></script>
+  <script src="../js/widgets.js"></script>
+  <script src="../js/util.js"></script>
+  <script src="../js/custom.js"></script>
+  <style>
+    .menu-widget {
+      color: rgb(255, 255, 255) !important;
+      opacity: 1 !important;
+      font-weight: 700 !important;
+    }
+  </style>
+</head>
+
+  <body>
+    <div class="wrapper d-flex align-items-stretch">
+      <nav id="sidebar">
+        <div class="custom-menu">
+          <button type="button" id="sidebarCollapse" class="btn btn-primary">
+            <i class="fa fa-bars"></i>
+            <span class="sr-only">Toggle Menu</span>
+          </button>
+        </div>
+        <h1><a href="../lectures.html" class="logo">Lectures</a></h1>
+        <ul class="list-unstyled components mb-5">
+          <li>
+            <a href="../index.html">Homepage</a>
+          </li>
+          <li class="active">
+            <a href="fpga.html">FPGA Design</a>
+          </li>
+          <li>
+            <a href="embedded.html">Embedded Programming</a>
+          </li>
+          <li>
+            <a href="signals_systems.html">Signals and Systems</a>
+          </li>
+          <li>
+            <a href="digital_logic_circuits.html">Digital Logic Circuits</a>
+          </li>
+        </ul>
+
+      </nav>
+
+        <!-- Page Content  -->
+      <div id="content" class="p-4 p-md-5 pt-5">
+        <h2 class="mb-4">Digital Logic Circuits</h2>
+          <hr>
+        <h3 class="mb-4">Table of Content</h3>
+          <ul>
+            <li><a href="#syllabus">Syllabus</a></li>
+            <li><a href="#calendar">Calendar</a></li>
+            <li><a href="#readings">Readings</a></li>
+            <li><a href="#lecture-notes">Lecture Notes</a></li>
+            <li><a href="#exams">Exams</a></li>
+            <li><a href="#projects">Projects</a></li>
+            <li><a href="#related-resources">Related Resources</a></li>
+          </ul>
+          <hr>
+        <h3 id="syllabus" class="mb-4">Syllabus</h3>
+          <hr>
+          <h4 class="mb-4">Topics</h4>
+            <p>이 교과목은 다음과 같은 내용을 포함한다:</p>
+            <ol>
+              <li>수의 체계</li>
+              <li>논리 게이트</li>
+              <li>불 대수</li>
+              <li>논리식의 간소화</li>
+              <li>조합논리회로</li>
+              <li>플립플럽</li>
+              <li>동기순서논리회로</li>
+              <li>카운터</li>
+              <li>레지스터</li>
+              <li>메모리와 프로그래머블 논리 장치</li>
+              <li>논리회로 실험</li>
+            </ol>
+          <h4 class="mb-4">Grading</h4>
+            <table style="margin-top:-10px; width:20%;">
+              <colgroup>
+                <col span="1" style="width:70%;">
+                <col span="1" style="width:30%;">
+              </colgroup>
+              <tbody>
+                <tr>
+                  <td><b>Activities</b></td>
+                  <td><b>Percentages</b></td>
+                </tr>
+                <tr>
+                  <td>Attendance(출석)</td>
+                  <td>10%</td>
+                </tr>
+                <tr>
+                  <td>Attitude(태도)</td>
+                  <td>10%</td>
+                </tr>
+                <tr>
+                  <td>Homework(과제)</td>
+                  <td>10%</td>
+                </tr>
+                <tr>
+                  <td>Presentation(발표)</td>
+                  <td>20%</td>
+                </tr>
+                <tr>
+                  <td>Midterm(중간)</td>
+                  <td>20%</td>
+                </tr>
+                <tr>
+                  <td>Final(기말)</td>
+                  <td>30%</td>
+                </tr>
+              </tbody>
+            </table>
+            <br>
+        <h3 id="calendar" class="mb-4">Calendar</h3>
+          <hr>
+          <table style="margin-top:-10px; width:80%;">
+            <colgroup>
+              <col span="1" style="width:5%;">
+              <col span="1" style="width:25%;">
+              <col span="1" style="width:70%;">
+            </colgroup>
+            <tbody>
+              <tr>
+                <td><b>Week</b></td>
+                <td><b>Topic</b></td>
+                <td><b>Note</b></td>
+              </tr>
+              <tr>
+                <td>1</td>
+                <td>논리회로 소개</td>
+                <td></td>
+              </tr>
+              <tr>
+                <td>2</td>
+                <td>수의 체계</td>
+                <td></td>
+              </tr>
+              <tr>
+                <td>3</td>
+                <td>논리 게이트</td>
+                <td></td>
+              </tr>
+              <tr>
+                <td>4</td>
+                <td>불 대수</td>
+                <td></td>
+              </tr>
+              <tr>
+                <td>5</td>
+                <td>논리식의 간소화</td>
+                <td></td>
+              </tr>
+              <tr>
+                <td>6</td>
+                <td>조합논리회로</td>
+                <td></td>
+              </tr>
+              <tr>
+                <td>7</td>
+                <td>중간고사</td>
+                <td>2~6 주차</td>
+              </tr>
+              <tr>
+                <td>8</td>
+                <td>플립플럽</td>
+                <td></td>
+              </tr>
+              <tr>
+                <td>9</td>
+                <td>동기순서논리회로</td>
+                <td></td>
+              </tr>
+              <tr>
+                <td>10</td>
+                <td>카운터</td>
+                <td></td>
+              </tr>
+              <tr>
+                <td>11</td>
+                <td>레지스터</td>
+                <td></td>
+              </tr>
+              <tr>
+                <td>12</td>
+                <td>메모리와 프로그래머블 논리 장치</td>
+                <td></td>
+              </tr>
+              <tr>
+                <td>13</td>
+                <td>논리회로 실험</td>
+                <td></td>
+              </tr>
+              <tr>
+                <td>14</td>
+                <td>논리회로 실험</td>
+                <td></td>
+              </tr>
+              <tr>
+                <td>15</td>
+                <td>기말고사</td>
+                <td>8~14 주차</td>
+              </tr>
+            </tbody>
+          </table>
+          <br>
+        <h3 id="readings" class="mb-4">Readings</h3>
+          <hr>
+          <h4 class="mb-4">Books</h4>
+            <p class="text-small-margin">임석구, 홍경호. 이론, 실습, 시뮬레이션 디지털 논리회로. 2022.</p>
+            <br>
+          <h4 class="mb-4">Papers</h4>
+        <h3 id="lecture-notes" class="mb-4">Lecture Notes</h3>
+          <hr>
+          <p>To be updated.</p>
+        <h3 id="exams" class="mb-4">Exams</h3>
+          <hr>
+          <p>To be updated.</p>
+        <h3 id="projects" class="mb-4">Projects</h3>
+          <hr>
+          <p>To be updated.</p>
+        <h3 id="related-resources" class="mb-4">Related Resources</h3>
+          <hr>
+          <p>To be updated.</p>
+      </div>
+    </div>
+
+    <script src="../js/lecture/jquery.min.js"></script>
+    <script src="../js/lecture/popper.js"></script>
+    <script src="../js/lecture/bootstrap.min.js"></script>
+    <script src="../js/lecture/main.js"></script>
+  </body>
+
+</html>
