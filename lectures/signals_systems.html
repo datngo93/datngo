@@ -254,9 +254,55 @@
             &nbsp;&nbsp;|&nbsp;&nbsp;
             <a href="file/denoising_cnn.zip" target="_blank">예시 코드 2</a>
           </p>
+          <p class="text-small-margin"><a href="file/signal_system_lec_8.pdf" target="_blank">라플라스 변환과 아날로그 시스템</a>
+          </p>
         <h3 id="exams" class="mb-4">Exams</h3>
           <hr>
-          <p>To be updated.</p>
+          <p>성적 조회: 학번을 입력하고 "조회"을 클릭하세요!</p>
+          <input type="text" id="numberInput">
+          <button onclick="lookupValue()">조회</button>
+          <p id="result"></p>
+
+          <script>
+          function lookupValue() {
+            // Get the value entered by the user
+            var number = document.getElementById("numberInput").value;
+  
+            // Define a lookup table (example)
+            var lookupTable = {
+              "2026004": "100",
+              "2026061": "53",
+              "2101007": "74",
+              "2126001": "74",
+              "2126003": "37",
+              "2126016": "84",
+              "2126019": "63",
+              "2126032": "95",
+              "2126039": "74",
+              "2126073": "84",
+              "2126087": "74",
+              "2126094": "68",
+              "2126099": "63",
+              "2126103": "68",
+              "2326031": "68",
+              "2326037": "84",
+              "2326077": "74",
+              "2015108": "68",
+              "2425407": "74",
+              "1826102": "47"
+            };
+  
+            // Check if the entered number exists in the lookup table
+            var result = lookupTable[number];
+  
+            // Display the result
+            if (result !== undefined) {
+              document.getElementById("result").innerHTML = number + "의 성적은<br>" + result + "<br>이에요.";
+            } else {
+              document.getElementById("result").innerHTML = "학번과 분반을 확인하세요!";
+            }
+          }
+          </script>
         <h3 id="projects" class="mb-4">Projects</h3>
           <hr>
           <p>To be updated.</p>

@@ -239,9 +239,104 @@
           <p class="text-small-margin"><a href="file/digital_logic_circuit_lec_5.pdf" target="_blank">논리식의 간소화</a></p>
           <p class="text-small-margin"><a href="file/digital_logic_circuit_lec_6.pdf" target="_blank">조합논리회로</a></p>
           <p class="text-small-margin"><a href="file/digital_logic_circuit_lec_7.pdf" target="_blank">플립플롭</a></p>
+          <p class="text-small-margin"><a href="file/digital_logic_circuit_lec_8.pdf" target="_blank">동기순서논리회로</a></p>
         <h3 id="exams" class="mb-4">Exams</h3>
           <hr>
-          <p>To be updated.</p>
+          <p>성적 조회: 학번을 입력하고 "조회"을 클릭하세요!</p>
+          <input type="text" id="numberInput">
+          <button onclick="lookupValue()">조회</button>
+          <p id="result"></p>
+
+          <script>
+          function lookupValue() {
+            // Get the value entered by the user
+            var number = document.getElementById("numberInput").value;
+  
+            // Define a lookup table (example)
+            var lookupTable = {
+              "2425001": "95",
+              "2425002": "70",
+              "2425003": "45",
+              "2425004": "40",
+              "2425005": "40",
+              "2425006": "95",
+              "2425007": "55",
+              "2425008": "60",
+              "2425009": "90",
+              "2425012": "65",
+              "2425013": "80",
+              "2425014": "90",
+              "2425015": "15",
+              "2425016": "60",
+              "2425017": "100",
+              "2425018": "90",
+              "2425019": "5",
+              "2425020": "80",
+              "2425021": "75",
+              "2425022": "85",
+              "2425023": "90",
+              "2425024": "35",
+              "2425025": "70",
+              "2326062": "45",
+              "2425026": "85",
+              "2425029": "85",
+              "2425030": "75",
+              "2425032": "40",
+              "2425033": "40",
+              "2425034": "90",
+              "2425035": "70",
+              "2425037": "결석",
+              "2425038": "75",
+              "2425040": "65",
+              "2425041": "70",
+              "2425042": "85",
+              "2425043": "65",
+              "2425044": "65",
+              "2425045": "90",
+              "2425048": "70",
+              "2425049": "60",
+              "2425050": "100",
+              "2425051": "95",
+              "2425065": "45",
+              "1967067": "70",
+              "2118224": "65",
+              "2145081": "100",
+              "2226065": "40",
+              "2425052": "85",
+              "2425053": "65",
+              "2425054": "80",
+              "2425055": "65",
+              "2425056": "90",
+              "2425057": "100",
+              "2425058": "75",
+              "2425059": "100",
+              "2425060": "80",
+              "2425062": "60",
+              "2425064": "100",
+              "2425066": "80",
+              "2425067": "25",
+              "2425068": "95",
+              "2425069": "70",
+              "2425070": "70",
+              "2425071": "100",
+              "2425072": "90",
+              "2425073": "50",
+              "2425074": "90",
+              "2425075": "90",
+              "1945122": "100"
+            };
+  
+            // Check if the entered number exists in the lookup table
+            var result = lookupTable[number];
+  
+            // Display the result
+            if (result !== undefined) {
+              document.getElementById("result").innerHTML = number + "의 성적은<br>" + result + "<br>이에요.";
+            } else {
+              document.getElementById("result").innerHTML = "학번과 분반을 확인하세요!";
+            }
+          }
+          </script>
         <h3 id="projects" class="mb-4">Projects</h3>
           <hr>
           <p>To be updated.</p>
