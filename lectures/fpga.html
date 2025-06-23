@@ -288,50 +288,63 @@
           <p id="result"></p>
 
           <script>
-          function lookupValue() {
-            // Get the value entered by the user
-            var number = document.getElementById("numberInput").value;
-  
-            // Define a lookup table (example)
-            var lookupTable = {
-              "202****": "",
-              "182****": "",
-              "191****": "",
-              "192****": "",
-              "192****": "",
-              "192****": "",
-              "192****": "",
-              "194****": "",
-              "202****": "",
-              "202****": "",
-              "202****": "",
-              "202****": "",
-              "202****": "",
-              "202****": "",
-              "202****": "",
-              "202****": "",
-              "202****": "",
-              "202****": "",
-              "202****": "",
-              "202****": "",
-              "212****": "",
-              "222****": "",
-              "222****": "",
-              "222****": "",
-              "242****": "",
-              "242****": "",
-              "242****": ""
-            };
-  
-            // Check if the entered number exists in the lookup table
-            var result = lookupTable[number];
-  
-            // Display the result
-            if (result !== undefined) {
-              document.getElementById("result").innerHTML = number + "의 성적은<br>" + result + "<br>이에요.";
-            } else {
-              document.getElementById("result").innerHTML = "학번과 분반을 확인하세요!";
-            }
+          async function sha256(input) {
+            const encoder = new TextEncoder();
+            const data = encoder.encode(input);
+            const hashBuffer = await crypto.subtle.digest("SHA-256", data);
+            const hashArray = Array.from(new Uint8Array(hashBuffer));
+            const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+            return hashHex;
+          }
+
+          async function lookupValue() {
+             // Get the value entered by the user
+             const number = document.getElementById("numberInput").value;
+          
+             // Hash the student ID using SHA-256
+             const hashedNumber = await sha256(number);
+          
+             // Define a lookup table with hashed keys
+             const lookupTable = {
+                // Precomputed SHA-256 hashes
+                "0d00bd68db4fb06f7866c1a3e070135e8db38554f1438c8f6c351e6046ca1c3c": "출석: 10.0  과제: 10.0  태도: 10.0  발표: 19.0  중간: 18.0  기말: 30.0    점수: 97      환산점수: 98.0  등급: A+",
+                "61b22acb361c7764797b642c2c59d99d8780f4ac49456d9acc1d453863196d89": "출석: 10.0  과제: 10.0  태도: 10.0  발표: 20.0  중간: 17.5  기말: 28.24   점수: 95.74   환산점수: 98.0  등급: A+",
+                "193e446e72f4a577c7671e1f9adad02f16cc21ae4798883dcc91423caa0c3fc4": "출석: 10.0  과제: 7.0   태도: 10.0  발표: 20.0  중간: 18.5  기말: 30.0    점수: 95.5    환산점수: 98.0  등급: A+",
+                "512996847cf6a457719ae33c28b29dfd3aac17ff8bb2f61d16a87a9e087075da": "출석: 10.0  과제: 10.0  태도: 10.0  발표: 19.0  중간: 20.0  기말: 21.18   점수: 90.18   환산점수: 98.0  등급: A+",
+                "f57a2edbefb8e6f1ff7049aa72f32965195aeac8cf36677e5b84d5ed65734bf3": "출석: 10.0  과제: 10.0  태도: 10.0  발표: 20.0  중간: 15.0  기말: 21.18   점수: 86.18   환산점수: 92.0  등급: A0",
+                "2c29aada813e3ed37656fcb6bccb259def58a95d7df21cc25c247da2371050fb": "출석: 7.33  과제: 10.0  태도: 10.0  발표: 17.0  중간: 17.0  기말: 22.94   점수: 84.27   환산점수: 92.0  등급: A0",
+                "6b82a87b2fb973a69e556af9e373f1e1b9dd15184b8555d64b626d7397ec28f8": "출석: 8.0   과제: 10.0  태도: 10.0  발표: 16.0  중간: 10.0  기말: 30.0    점수: 84      환산점수: 92.0  등급: A0",
+                "8ade2e8f7f871747bc8ff7ee79cf931e7badf3b17d1f180c0a7637c81c17327f": "출석: 10.0  과제: 10.0  태도: 10.0  발표: 20.0  중간: 14.0  기말: 19.41   점수: 83.41   환산점수: 92.0  등급: A0",
+                "250bbbcf26e335ce30d7c51324f6323a1da331f0fa622dfeff7386c18c437e89": "출석: 8.0   과제: 10.0  태도: 10.0  발표: 19.0  중간: 13.0  기말: 22.94   점수: 82.94   환산점수: 92.0  등급: A0",
+                "bdd3cbf7961121f06af4e14c1c125a0478c604437bb4ddcf006ecaabe3a704d3": "출석: 8.0   과제: 10.0  태도: 10.0  발표: 17.0  중간: 18.0  기말: 15.88   점수: 78.88   환산점수: 92.0  등급: A0",
+                "be56ac3ff07f5f90dbd2fc26a6a3466977acae028f76ae49b6c232203e67a6ad": "출석: 8.0   과제: 10.0  태도: 10.0  발표: 20.0  중간: 14.5  기말: 15.88   점수: 78.38   환산점수: 92.0  등급: A0",
+                "65f885461d4a5dc702625e18aafbe952157011fd5473b7d2414edf28e081af3d": "출석: 6.0   과제: 8.0   태도: 10.0  발표: 17.0  중간: 16.0  기말: 21.18   점수: 78.18   환산점수: 92.0  등급: A0",
+                "e4aec088f64bd1ac32dc8624a16597d66dae858ac239ee02546083e51590dac3": "출석: 10.0  과제: 8.0   태도: 10.0  발표: 19.0  중간: 7.0   기말: 19.41   점수: 73.41   환산점수: 92.0  등급: A0",
+                "a18fab2537694264b2899def7a4b68eb8d4ad4e3d46a5c536d89e85efc302f94": "출석: 10.0  과제: 5.0   태도: 10.0  발표: 18.0  중간: 16.0  기말: 14.12   점수: 73.12   환산점수: 92.0  등급: A0",
+                "00e836b205a09d1a3261f680542c47d99575acaffd85283bb1ab5570d90d00fc": "출석: 7.33  과제: 7.0   태도: 10.0  발표: 18.0  중간: 10.0  기말: 19.41   점수: 71.74   환산점수: 88.0  등급: B+",
+                "a7f6262b7e8ae20cc0b8531222245f74020a971c3f1b33d026bab9b9cc5f7f49": "출석: 5.33  과제: 0.0   태도: 10.0  발표: 17.0  중간: 18.0  기말: 21.18   점수: 71.51   환산점수: 88.0  등급: B+",
+                "332e931827ef386e9c8e2ff36a4678f28dceb9b665d7f4194d6dcb6a77384f8e": "출석: 10.0  과제: 10.0  태도: 10.0  발표: 20.0  중간: 6.0   기말: 14.12   점수: 70.12   환산점수: 88.0  등급: B+",
+                "e007e512b483cbb348c4b25e06d779ca4a34692f43e090edf1c659bf277f1ace": "출석: 8.0   과제: 10.0  태도: 10.0  발표: 16.0  중간: 12.0  기말: 14.12   점수: 70.12   환산점수: 88.0  등급: B+",
+                "c896775b5f7b90ce64b7710fe708732684f6cc69b006da0efba183756cf558ad": "출석: 9.33  과제: 8.0   태도: 10.0  발표: 17.0  중간: 12.0  기말: 12.35   점수: 68.68   환산점수: 88.0  등급: B+",
+                "3b9fcfdc2d510d299b9ebe49773be4b32b4b99168c73f6ae0e849fc19ac4a9e8": "출석: 9.33  과제: 9.0   태도: 10.0  발표: 16.0  중간: 10.0  기말: 14.12   점수: 68.45   환산점수: 88.0  등급: B+",
+                "ff5d5578ebf2f2b8e5a21d9ca69b79ecffbb89555654203eff70eaaa5c380450": "출석: 7.33  과제: 9.0   태도: 10.0  발표: 16.0  중간: 10.0  기말: 15.88   점수: 68.21   환산점수: 88.0  등급: B+",
+                "5994ae2ff726af1e855be4983baa355f260ba4f7ade0cfd1b3127ea14d0b2282": "출석: 8.0   과제: 10.0  태도: 10.0  발표: 17.0  중간: 6.0   기말: 15.88   점수: 66.88   환산점수: 88.0  등급: B+",
+                "1f8406edfb3e4ce0f37838f7aaa2e3e34e2f2e3b359438e30b91b0317d12977d": "출석: 8.0   과제: 5.0   태도: 10.0  발표: 18.0  중간: 10.5  기말: 14.12   점수: 65.62   환산점수: 88.0  등급: B+",
+                "a460fde505fc4308ac5ae17b0f256b60e42d985f285a9d05d19e44f442f583b8": "출석: 4.0   과제: 0.0   태도: 10.0  발표: 16.0  중간: 16.0  기말: 15.88   점수: 61.88   환산점수: 88.0  등급: B+",
+                "a82880440cd5454b48affb20f904105627feb293c82e14ccde32f48887fc6a3f": "출석: 4.0   과제: 0.0   태도: 10.0  발표: 20.0  중간: 7.0   기말: 15.88   점수: 56.88   환산점수: 82.0  등급: B0",
+                "6d8f20fcc8ebd7ba00f821018a2df2bcfe78a2623e05f03b4569a37735ccb40f": "출석: 4.0   과제: 0.0   태도: 10.0  발표: 16.0  중간: 12.0  기말: 12.35   점수: 54.35   환산점수: 82.0  등급: B0",
+                "bc1c6892aaa439cc5dd81a7db4512040e16bd94fd4a318e7b871f97c0f13ab08": "출석: 0.0   과제: 0.0   태도: 10.0  발표: 0.0   중간: 8.0   기말: 12.35   점수: 30.35   환산점수: 0.0   등급: F"
+             };
+          
+             // Query the result
+             const result = lookupTable[hashedNumber];
+          
+             // Display the result
+             if (result !== undefined) {
+                document.getElementById("result").innerHTML = "초회된 성적은<br>" + result + "<br>입니다.";
+             } else {
+                document.getElementById("result").innerHTML = "학번과 분반을 확인하세요!";
+             }
           }
           </script>
         <h3 id="projects" class="mb-4">Projects</h3>
