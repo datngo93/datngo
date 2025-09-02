@@ -52,13 +52,13 @@
           <li>
             <a href="embedded.html">Embedded Programming</a>
           </li>
-          <li class="active">
+          <li>
             <a href="signals_systems.html">Signals and Systems</a>
           </li>
           <li>
             <a href="digital_logic_circuits.html">Digital Logic Circuits</a>
           </li>
-          <li>
+          <li class="active">
             <a href="c_programming.html">C Programming</a>
           </li>
         </ul>
@@ -67,7 +67,7 @@
 
         <!-- Page Content  -->
       <div id="content" class="p-4 p-md-5 pt-5">
-        <h2 class="mb-4">Signals and Systems</h2>
+        <h2 class="mb-4">C Programming</h2>
           <hr>
         <h3 class="mb-4">Table of Content</h3>
           <ul>
@@ -85,16 +85,14 @@
           <h4 class="mb-4">Topics</h4>
             <p>이 교과목은 다음과 같은 내용을 포함한다:</p>
             <ol>
-              <li>신호 및 시스템 표현</li>
-              <li>연속 신호 및 시스템</li>
-              <li>이산 신호 및 시스템</li>
-              <li>연속 신호의 주파수 해석</li>
-              <li>이산 신호의 주파수 해석</li>
-              <li>불규칙 신호 및 시스템</li>
-              <li>라플라스 변환과 아날로그 시스템</li>
-              <li>z-변환과 디지털 시스템</li>
-              <li>디지털 필터</li>
-              <li>신호 및 시스템 응용</li>
+              <li>언어 소개</li>
+              <li>변수, 데이터형, 연산자</li>
+              <li>제어 흐름</li>
+              <li>포인터와 배열</li>
+              <li>구조체</li>
+              <li>라이브러리</li>
+              <li>멀티스레딩(Multithreading)</li>
+              <li>리녹스 프로세스 간의 통신</li>
             </ol>
           <h4 class="mb-4">Grading</h4>
             <table style="margin-top:-10px; width:20%;">
@@ -112,24 +110,16 @@
                   <td>10%</td>
                 </tr>
                 <tr>
-                  <td>Attitude(태도)</td>
-                  <td>10%</td>
-                </tr>
-                <tr>
                   <td>Homework(과제)</td>
-                  <td>10%</td>
-                </tr>
-                <tr>
-                  <td>Presentation(발표)</td>
                   <td>20%</td>
                 </tr>
                 <tr>
                   <td>Midterm(중간)</td>
-                  <td>20%</td>
+                  <td>30%</td>
                 </tr>
                 <tr>
                   <td>Final(기말)</td>
-                  <td>30%</td>
+                  <td>40%</td>
                 </tr>
               </tbody>
             </table>
@@ -150,78 +140,77 @@
               </tr>
               <tr>
                 <td>1</td>
-                <td>신호 및 시스템 소개</td>
+                <td>언어 소개</td>
                 <td></td>
               </tr>
               <tr>
                 <td>2</td>
-                <td>신호 및 시스템 표현</td>
+                <td>변수, 데이터형, 연산자</td>
                 <td></td>
               </tr>
               <tr>
                 <td>3</td>
-                <td>연속 신호 및 시스템</td>
+                <td>제어 흐름</td>
                 <td></td>
               </tr>
               <tr>
                 <td>4</td>
-                <td>이산 신호 및 시스템</td>
+                <td>제어 흐름</td>
                 <td></td>
               </tr>
               <tr>
                 <td>5</td>
-                <td>연속 신호의 주파수 해석</td>
+                <td>포인터와 배열</td>
                 <td></td>
               </tr>
               <tr>
                 <td>6</td>
-                <td>이산 신호의 주파수 해석</td>
+                <td>구조체</td>
                 <td></td>
               </tr>
               <tr>
                 <td>7</td>
-                <td>중간고사</td>
-                <td>2~6 주차</td>
+                <td>포인터의 포인터</td>
               </tr>
               <tr>
                 <td>8</td>
-                <td>불규칙 신호 및 시스템</td>
-                <td></td>
+                <td>중간고사</td>
+                <td>1~7 주차</td>
               </tr>
               <tr>
                 <td>9</td>
-                <td>라플라스 변환과 아날로그 시스템</td>
+                <td>Void 함수, 함수의 포인터, 해시 테이블</td>
                 <td></td>
               </tr>
               <tr>
                 <td>10</td>
-                <td>z-변환과 디지털 시스템</td>
+                <td>외부 라이브러리</td>
                 <td></td>
               </tr>
               <tr>
                 <td>11</td>
-                <td>디지털 필터</td>
+                <td>표준 라이브러리</td>
                 <td></td>
               </tr>
               <tr>
                 <td>12</td>
-                <td>디지털 필터</td>
+                <td>동적 메모리 할당</td>
                 <td></td>
               </tr>
               <tr>
                 <td>13</td>
-                <td>신호 및 시스템 응용</td>
+                <td>멀티스레딩(Multithreading)</td>
                 <td></td>
               </tr>
               <tr>
                 <td>14</td>
-                <td>신호 및 시스템 응용</td>
+                <td>리녹스 프로세스 간의 통신</td>
                 <td></td>
               </tr>
               <tr>
                 <td>15</td>
                 <td>기말고사</td>
-                <td>8~14 주차</td>
+                <td>9~14 주차</td>
               </tr>
             </tbody>
           </table>
@@ -229,52 +218,12 @@
         <h3 id="readings" class="mb-4">Readings</h3>
           <hr>
           <h4 class="mb-4">Books</h4>
-            <p class="text-small-margin">강철호, 유지상, 박호종. 신호 및 시스템. 2017.</p>
-            <p class="text-small-margin">남승현. 파이썬과 함께 배우는 신호와 시스템. 2020.</p>
+            <p class="text-small-margin">Brian W. Kernighan, Dennis M. Ritchie 지음; 김석환, 박용규, 최홍순 옮김. (Kernighan의) C 언어 프로그래밍. 2016.</p>
             <br>
           <h4 class="mb-4">Papers</h4>
         <h3 id="lecture-notes" class="mb-4">Lecture Notes</h3>
           <hr>
-          <p class="text-small-margin"><a href="file/signal_system_lec_1.pdf" target="_blank">신호 및 시스템 소개</a>
-            &nbsp;&nbsp;|&nbsp;&nbsp;
-            <a href="file/denoising_example.zip" target="_blank">예시 코드</a>
-          </p>
-          <p class="text-small-margin"><a href="file/signal_system_lec_2.pdf" target="_blank">신호 및 시스템 표현</a>
-            &nbsp;&nbsp;|&nbsp;&nbsp;
-            <a href="file/signal_system_lec_2.zip" target="_blank">예시 코드</a>
-          </p>
-          <p class="text-small-margin"><a href="file/signal_system_lec_3.pdf" target="_blank">연속 신호 및 시스템</a>
-          </p>
-          <p class="text-small-margin"><a href="file/signal_system_lec_4.pdf" target="_blank">이산 신호 및 시스템</a>
-          </p>
-          <p class="text-small-margin"><a href="file/signal_system_lec_5.pdf" target="_blank">연속 신호의 주파수 해석</a>
-          </p>
-          <p class="text-small-margin"><a href="file/signal_system_lec_6.pdf" target="_blank">이산 신호의 주파수 해석</a>
-          </p>
-          <p class="text-small-margin"><a href="file/signal_system_lec_7.pdf" target="_blank">불규칙 신호 및 시스템</a>
-            &nbsp;&nbsp;|&nbsp;&nbsp;
-            <a href="file/image_denoising_ex.zip" target="_blank">예시 코드 1</a>
-            &nbsp;&nbsp;|&nbsp;&nbsp;
-            <a href="file/denoising_cnn.zip" target="_blank">예시 코드 2</a>
-          </p>
-          <p class="text-small-margin"><a href="file/signal_system_lec_8.pdf" target="_blank">라플라스 변환과 아날로그 시스템</a>
-            &nbsp;&nbsp;|&nbsp;&nbsp;
-            <a href="file/laplace_sympy.zip" target="_blank">예시 코드</a>
-            &nbsp;&nbsp;|&nbsp;&nbsp;
-            <a href="file/signal_system_homework.pdf" target="_blank">과제</a>
-          </p>
-          <p class="text-small-margin"><a href="file/signal_system_lec_9.pdf" target="_blank">z-변환과 디지털 시스템</a>
-            &nbsp;&nbsp;|&nbsp;&nbsp;
-            <a href="file/z_transform.zip" target="_blank">예시 코드</a>
-          </p>
-          <p class="text-small-margin"><a href="file/signal_system_lec_10.pdf" target="_blank">디지털 필터의 기초</a>
-            &nbsp;&nbsp;|&nbsp;&nbsp;
-            <a href="file/filter_design.zip" target="_blank">예시 코드</a>
-          </p>
-          <p class="text-small-margin"><a href="file/signal_system_lec_11.pdf" target="_blank">신호 및 시스템의 응용</a>
-            &nbsp;&nbsp;|&nbsp;&nbsp;
-            <a href="file/jpeg_compression.zip" target="_blank">예시 코드</a>
-          </p>
+          <p class="text-small-margin"><a href="file/c_programming_lec_1.pdf" target="_blank">언어 소개</a></p>
         <h3 id="exams" class="mb-4">Exams</h3>
           <hr>
           <p>성적 조회: 학번을 입력하고 "조회"을 클릭하세요!</p>
@@ -289,26 +238,76 @@
   
             // Define a lookup table (example)
             var lookupTable = {
-              "****004": "중간: 기말: ",
-              "****061": "중간: 기말: ",
-              "****007": "중간: 기말: ",
               "****001": "중간: 기말: ",
+              "****002": "중간: 기말: ",
               "****003": "중간: 기말: ",
+              "****004": "중간: 기말: ",
+              "****005": "중간: 기말: ",
+              "****006": "중간: 기말: ",
+              "****007": "중간: 기말: ",
+              "****008": "중간: 기말: ",
+              "****009": "중간: 기말: ",
+              "****012": "중간: 기말: ",
+              "****013": "중간: 기말: ",
+              "****014": "중간: 기말: ",
+              "****015": "중간: 기말: ",
               "****016": "중간: 기말: ",
+              "****017": "중간: 기말: ",
+              "****018": "중간: 기말: ",
               "****019": "중간: 기말: ",
+              "****020": "중간: 기말: ",
+              "****021": "중간: 기말: ",
+              "****022": "중간: 기말: ",
+              "****023": "중간: 기말: ",
+              "****024": "중간: 기말: ",
+              "****025": "중간: 기말: ",
+              "****062": "중간: 기말: ",
+              "****026": "중간: 기말: ",
+              "****029": "중간: 기말: ",
+              "****030": "중간: 기말: ",
               "****032": "중간: 기말: ",
-              "****039": "중간: 기말: ",
-              "****073": "중간: 기말: ",
-              "****087": "중간: 기말: ",
-              "****094": "중간: 기말: ",
-              "****099": "중간: 기말: ",
-              "****103": "중간: 기말: ",
-              "****031": "중간: 기말: ",
+              "****033": "중간: 기말: ",
+              "****034": "중간: 기말: ",
+              "****035": "중간: 기말: ",
               "****037": "중간: 기말: ",
-              "****077": "중간: 기말: ",
-              "****108": "중간: 기말: ",
-              "****407": "중간: 기말: ",
-              "****102": "중간: 기말: "
+              "****038": "중간: 기말: ",
+              "****040": "중간: 기말: ",
+              "****041": "중간: 기말: ",
+              "****042": "중간: 기말: ",
+              "****043": "중간: 기말: ",
+              "****044": "중간: 기말: ",
+              "****045": "중간: 기말: ",
+              "****048": "중간: 기말: ",
+              "****049": "중간: 기말: ",
+              "****050": "중간: 기말: ",
+              "****051": "중간: 기말: ",
+              "****065": "중간: 기말: ",
+              "****067": "중간: 기말: ",
+              "****224": "중간: 기말: ",
+              "****081": "중간: 기말: ",
+              "****065": "중간: 기말: ",
+              "****052": "중간: 기말: ",
+              "****053": "중간: 기말: ",
+              "****054": "중간: 기말: ",
+              "****055": "중간: 기말: ",
+              "****056": "중간: 기말: ",
+              "****057": "중간: 기말: ",
+              "****058": "중간: 기말: ",
+              "****059": "중간: 기말: ",
+              "****060": "중간: 기말: ",
+              "****062": "중간: 기말: ",
+              "****064": "중간: 기말: ",
+              "****066": "중간: 기말: ",
+              "****067": "중간: 기말: ",
+              "****068": "중간: 기말: ",
+              "****069": "중간: 기말: ",
+              "****070": "중간: 기말: ",
+              "****071": "중간: 기말: ",
+              "****072": "중간: 기말: ",
+              "****073": "중간: 기말: ",
+              "****074": "중간: 기말: ",
+              "****075": "중간: 기말: ",
+              "****122": "중간: 기말: "
             };
   
             // Check if the entered number exists in the lookup table
@@ -324,10 +323,10 @@
           </script>
         <h3 id="projects" class="mb-4">Projects</h3>
           <hr>
-          <p>To be updated.</p>
+          <p class="text-small-margin">To be updated</p>
         <h3 id="related-resources" class="mb-4">Related Resources</h3>
           <hr>
-          <p class="text-small-margin"><a href="https://code.visualstudio.com/" target="_blank">Visual Studio Code</a></p>
+          <p class="text-small-margin"><a href="file/컴파일러_설치.pdf" target="_blank">GCC 컴파일러 설치</a>
       </div>
     </div>
 
