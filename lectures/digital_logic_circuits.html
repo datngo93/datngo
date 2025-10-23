@@ -254,93 +254,112 @@
           <p id="result"></p>
 
           <script>
-          function lookupValue() {
-            // Get the value entered by the user
-            var number = document.getElementById("numberInput").value;
-  
-            // Define a lookup table (example)
-            var lookupTable = {
-              "****001": "중간: 기말: ",
-              "****002": "중간: 기말: ",
-              "****003": "중간: 기말: ",
-              "****004": "중간: 기말: ",
-              "****005": "중간: 기말: ",
-              "****006": "중간: 기말: ",
-              "****007": "중간: 기말: ",
-              "****008": "중간: 기말: ",
-              "****009": "중간: 기말: ",
-              "****012": "중간: 기말: ",
-              "****013": "중간: 기말: ",
-              "****014": "중간: 기말: ",
-              "****015": "중간: 기말: ",
-              "****016": "중간: 기말: ",
-              "****017": "중간: 기말: ",
-              "****018": "중간: 기말: ",
-              "****019": "중간: 기말: ",
-              "****020": "중간: 기말: ",
-              "****021": "중간: 기말: ",
-              "****022": "중간: 기말: ",
-              "****023": "중간: 기말: ",
-              "****024": "중간: 기말: ",
-              "****025": "중간: 기말: ",
-              "****062": "중간: 기말: ",
-              "****026": "중간: 기말: ",
-              "****029": "중간: 기말: ",
-              "****030": "중간: 기말: ",
-              "****032": "중간: 기말: ",
-              "****033": "중간: 기말: ",
-              "****034": "중간: 기말: ",
-              "****035": "중간: 기말: ",
-              "****037": "중간: 기말: ",
-              "****038": "중간: 기말: ",
-              "****040": "중간: 기말: ",
-              "****041": "중간: 기말: ",
-              "****042": "중간: 기말: ",
-              "****043": "중간: 기말: ",
-              "****044": "중간: 기말: ",
-              "****045": "중간: 기말: ",
-              "****048": "중간: 기말: ",
-              "****049": "중간: 기말: ",
-              "****050": "중간: 기말: ",
-              "****051": "중간: 기말: ",
-              "****065": "중간: 기말: ",
-              "****067": "중간: 기말: ",
-              "****224": "중간: 기말: ",
-              "****081": "중간: 기말: ",
-              "****065": "중간: 기말: ",
-              "****052": "중간: 기말: ",
-              "****053": "중간: 기말: ",
-              "****054": "중간: 기말: ",
-              "****055": "중간: 기말: ",
-              "****056": "중간: 기말: ",
-              "****057": "중간: 기말: ",
-              "****058": "중간: 기말: ",
-              "****059": "중간: 기말: ",
-              "****060": "중간: 기말: ",
-              "****062": "중간: 기말: ",
-              "****064": "중간: 기말: ",
-              "****066": "중간: 기말: ",
-              "****067": "중간: 기말: ",
-              "****068": "중간: 기말: ",
-              "****069": "중간: 기말: ",
-              "****070": "중간: 기말: ",
-              "****071": "중간: 기말: ",
-              "****072": "중간: 기말: ",
-              "****073": "중간: 기말: ",
-              "****074": "중간: 기말: ",
-              "****075": "중간: 기말: ",
-              "****122": "중간: 기말: "
-            };
-  
-            // Check if the entered number exists in the lookup table
-            var result = lookupTable[number];
-  
-            // Display the result
-            if (result !== undefined) {
-              document.getElementById("result").innerHTML = number + "의 성적은<br>" + result + "<br>이에요.";
-            } else {
-              document.getElementById("result").innerHTML = "학번과 분반을 확인하세요!";
-            }
+          async function sha256(input) {
+            const encoder = new TextEncoder();
+            const data = encoder.encode(input);
+            const hashBuffer = await crypto.subtle.digest("SHA-256", data);
+            const hashArray = Array.from(new Uint8Array(hashBuffer));
+            const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+            return hashHex;
+          }
+
+          async function lookupValue() {
+             // Get the value entered by the user
+             const number = document.getElementById("numberInput").value;
+          
+             // Hash the student ID using SHA-256
+             const hashedNumber = await sha256(number);
+          
+             // Define a lookup table with hashed keys
+             const lookupTable = {
+                // Precomputed SHA-256 hashes
+                "282abb12e14b0a2e634a3e49f26c1da986d988bf78f98647ea61c0fe0bf8219b": "84",
+                "8d942196546c2ba38c870245433fbd9e03b0ef313b9308ed77425b6172be2510": "32",
+                "1a924b20a4017c698521eff45574e64e98a6a666eeb123576a47c014c02d3920": "84",
+                "3b72331b802ced99c39bd4b7ecfdecd1d647efce267c6b64d832b67579bd32f9": "74",
+                "98abee91c1d6cdeb8bef2e6bb3bf3604c67a3e806a1c4e013b82532748817692": "100",
+                "ac722bd8dfc64f038d33d12681479587bc783999165d16a66c32e96f08e44439": "84",
+                "1474191c119913547d317bd9019de10fdd7076fb91018e0b4009bc07d6d232a3": "63",
+                "64b0a8a260591c2b9c1f95d106d76e591ec777ad2b636eeab60f918396c3daea": "63",
+                "f54001acfab22ef7325e59bde8144c6b3bad7e5c104480657f2df072d0c26df7": "84",
+                "aa21e64a2e063930e1592a9286166732eb2b75162693853ad36e2eb73ec3bd02": "47",
+                "30f3a1566ff5804b259c2135f546b4c5837c16353f73146cc7f03514c15bf176": "61",
+                "c81d98a41e5ac9b5877821c773590699d35e993a29fc31af1cce70330c33ad0b": "11",
+                "646d06867d4573ff19464bfb4d6a33c3817b8417aa83902641bf1c16d1467573": "84",
+                "7ae8933e648b2f7db12eb86c445141e54df73e1c4b07fbf58c83c72aed4256d0": "63",
+                "fd721832f16d5f036eb20906977d554ec1db4a29e89e8718884a500df05e94f0": "63",
+                "9bb954bbcd138461542e5bccf0a62d9e0354776d0325c9f2df94411787ad0926": "32",
+                "7c2fe33ab1958618468c1816f7c6cce7a72a0f6e0f1fedd85b1804c195ba917d": "47",
+                "50ac41b4ea096831fba4e0c11d9637fbc8ed29275597a9151d42dc0d06c2b529": "42",
+                "cdd81d991afc12a56ae8b3d3d952a5bb8d8d83635f6eded44aa5369972c2083b": "47",
+                "e80f73e213f852094204c40903af6fc8bdc0c0616b070eb2b6d936933fd33580": "53",
+                "c35e97e76c60703a757f5e34dff0c14850d110829b82743bba0d33081df62cc1": "82",
+                "c194bc9a4627f45b84ab9668f249bd9042700a9e301266bf8503202792ec6db0": "53",
+                "402984e708ca71006aba6fb333cfb602982ec497051a09c0d7447e497285e1d5": "84",
+                "2916aecfced4c3a76689379de809b7c70646801c5d6edc15d63480ad686b5d0e": "53",
+                "9f54db972001bbdc76dcd049d149737b9d78849c8cd1fcc0ac67ead0221e0601": "42",
+                "06cabef8e29580c99c0f4aa253ddccb57c5601f2a6daaaca505e0a4fc4170106": "58",
+                "9a4461002737e87ccb47c2b3de2d9438cc6f385fbfb51e02978498d456584451": "63",
+                "a979b8d0dd4fe902b0d4184d84f2ded1206eae2e8b9a74d21690cc78af41593b": "58",
+                "abb07e2ccf365cc9b549d2f38cb87417a4b5857ed52ff1f0ad9624464480e7ee": "21",
+                "1cd5a65b55e82e40590e3e4ad3705f9e2cdd3c83889a1d9f63a3fca0eb162afa": "21",
+                "36495e64e5eee157d5071a6d8743e2cdf9655e571723756a642ec74d85ef93b5": "11",
+                "7b8fb904e731a4b5d522fed35bb32b0aec9eaf0f215a18d2644e08a051bdfa17": "58",
+                "7facb682750977cad19cd04cc8c97d9959687c487255ff90db8b4df580ebcd43": "21",
+                "05c664d8fa54246178cb2502cfea828f2f9980a2d5da874019b74cb4eefa4a66": "32",
+                "21a010cbb2fc7bc9fc78be03b58df2e004a01d54136b48baf20efa7e71d2f4d9": "63",
+                "06cbff31be0194b410821b5ae8a0e2279e89c6a9bb194431e47d2ae0b4a13247": "63",
+                "6e50b8a21c42d2d134205526ddff1607469bc40d58b3e5bd1df1a0836db83582": "84",
+                "355028da27ca91fd70ae0c82d6485a96970aba230381d83b16fcbd4e6f8f5f9f": "74",
+                "8cb0f3840b5862ccaf0315812ac24bda9a004b9993e75ea551ac97224b473c01": "58",
+                "f58991b2331c5f3ee34e03f47e9116390033fa4406a880fcbc2ef59eab7f2167": "63",
+                "f756d6318e9c07c642c829436f17d12b3ce68d701bfab50c54aedf0436c399af": "58",
+                "a5029933c983402d7ee6876631f0ce01624dd9d40ce16e4ccc22d0039a1c2393": "47",
+                "d6f78f28af75a3fe0c80c5c75615583c5eaa6a8967f7596980290900a401417f": "63",
+                "0c0233886efd1f8b52700953cfe9e26d5df8e5deb08bef60daf39a14d5f538e4": "58",
+                "672503e4f3f06ed9250a4cffc6b504ac2692db2ccfe418508404449033c44376": "79",
+                "e1f60c31b6f71f0860e5bc04338e3eea0a0cbae6e4d9a9f72f90bcff0efd7f9f": "63",
+                "7ab91f3baada2c40b1a15b5c3d020ad41483ae37136b2cfb8c2d7940a289e17e": "53",
+                "a814a202dd1e9ea2df34a99bd83d63c01baabcd4133c891c0c9e7e8984a80020": "61",
+                "c5e9cb0e59aa364ad033f7dbf871c33861b04d807e1606d306027cd216bd3f7d": "79",
+                "a7d4fdf66f6d996aac3180a26f1ce71aff925f41a58cb694061f2729a366343b": "74",
+                "0e4304fc3c21aeba2a81ca313e0eebd4d682b97ac54a47c97f7ec9c32293e018": "42",
+                "e40e4f56e57d48948556131c05415f41868ef8ea7e1537177d63ccbe7b0de556": "63",
+                "aa3be10f1a3c3f4faed66a249acbca2b6fa6d9831beaafbb63977ef6a5760738": "58",
+                "4cabdf967bd0a32200d19842233f76fb0049361df1db0104aec4e5fa1f2427de": "68",
+                "67c4943142d922e511c3e11d72854d04f43ff1b681b7d4b3be73c8aeb75de0e8": "63",
+                "42aaa04604571135661bbc9b3c775395f87121a135367454c7478a58c4bdea93": "95",
+                "8964d4a42a5b2025e9e19d7e6d6f0688e7ecdd8a296d7a53ade4234eed93da31": "74",
+                "9772663abf2636d5676e57eddb12f959bce8419ff9b55a7142283777f549aef7": "74",
+                "aba9217c1d22c19f4c15e200655799a1652d5611b0e9273f8da41f6768d3792c": "95",
+                "425f12b4c03eb7b94d7e996b93afd24dd5d43a334c1df093eae90306fdcbe099": "74",
+                "c4f10715c2b8e9bdfdc9081f0ac6d60aae1c08b28819f07b1537c6b0ee03dd92": "21",
+                "d37fcbea4e291f27adc33e786f2a802bf34a003d6061f46a4f9c469ce3acfcf8": "74",
+                "a9e08e6e4b3ffadf920a705d060b729ad2bef9b3f11d58e17c942a11a4682901": "61",
+                "9945d529562c8fd80dbdb1b1419d6a47083f5523b726b96c287ccfcf34839e5b": "71",
+                "515d5a1ef50f71db126a0c1f571fde8167767034cf5147d2d5332837ee816e29": "53",
+                "268bbf1a2050500ba7205f9cee0b557535758ef75dc0a34f00ce958d32168176": "63",
+                "809d4951f1d2b003da8c4993e57b80d7ce99632ea7ad22321806a35217b8e17f": "95",
+                "774e471dc5ed441d2044fe316022d63422f4aa34cc9a2d09e88ce2dd3ca7d879": "58",
+                "cb813a75a697207cf33771ebdf059469827888c213d4c0d0589055e5e4950251": "42",
+                "dfff636576641f61fae0fff59cf0aa232dbedc707a3d65ec1c1cf86aba176a3e": "100",
+                "a0c479f50316f4672f54c1b7e11cca8b6f9374e664f7b0ef58fa12b834dc185d": "95",
+                "390a60aa3f4b075bece795058ea5eb19551b6f3e101bb9eb74643127541698af": "74",
+                "5c98ec5c12edd542b2eb887aac3004abb455de0ee3d25fcb5d65b05a167d069f": "79",
+                "6070a4416451f06d15300871da6d32b9510e50a831dc47aecaa7ffb352acbad8": "84",
+                "07dfc05a3a2cae55563397705e32d09f1e6df32d88912daa31fa053aa2fe8b7d": "37",
+                "b7583acb58ed2e6f165f1a73895b7df1b911c54167cd34c5aa1e8d387ecffa44": "11"
+             };
+          
+             // Query the result
+             const result = lookupTable[hashedNumber];
+          
+             // Display the result
+             if (result !== undefined) {
+                document.getElementById("result").innerHTML = "초회된 성적은<br>" + result + "<br>입니다.";
+             } else {
+                document.getElementById("result").innerHTML = "학번과 분반을 확인하세요!";
+             }
           }
           </script>
         <h3 id="projects" class="mb-4">Projects</h3>
