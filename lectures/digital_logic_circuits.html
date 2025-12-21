@@ -254,112 +254,218 @@
           <p id="result"></p>
 
           <script>
-          async function sha256(input) {
-            const encoder = new TextEncoder();
-            const data = encoder.encode(input);
+          // === SHA-256 ===
+          async function sha256(str) {
+            const data = new TextEncoder().encode(str);
             const hashBuffer = await crypto.subtle.digest("SHA-256", data);
             const hashArray = Array.from(new Uint8Array(hashBuffer));
-            const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
-            return hashHex;
+            return hashArray.map(b => b.toString(16).padStart(2, "0")).join("");
           }
+          
+          // === Key padding (Python compatible) ===
+          function padKeyTo16(keyStr) {
+            if (keyStr.length >= 16) return keyStr.slice(0, 16);
+            return keyStr.padEnd(16, "\x00");
+          }
+          
+          // === Helper: concatenate Uint8Arrays ===
+          function concatUint8Arrays(a, b) {
+            const merged = new Uint8Array(a.length + b.length);
+            merged.set(a);
+            merged.set(b, a.length);
+            return merged;
+          }
+          
+          // === AES-GCM decrypt (Python compatible) ===
+          async function decryptText(base64Data, keyString) {
 
+          //console.log("=== decryptText START ===");
+          //console.log("Base64 input:", base64Data);
+          //console.log("Key string (with escape):", JSON.stringify(keyString));
+          //console.log("Key length:", keyString.length);
+       
+          // Log key bytes
+          const keyBytes = new TextEncoder().encode(keyString);
+          //console.log("Key bytes:", Array.from(keyBytes));
+       
+          // Decode base64
+          let raw;
+          try {
+             raw = Uint8Array.from(atob(base64Data), c => c.charCodeAt(0));
+          } catch (e) {
+             //console.error("atob() failed:", e);
+             throw e;
+          }
+       
+          //console.log("Raw data length:", raw.length);
+          //console.log("Raw data bytes:", Array.from(raw));
+       
+          // Extract nonce, ciphertext, tag
+          const nonce = raw.slice(0, 16);
+          const tag = raw.slice(raw.length - 16);
+          const ciphertext = raw.slice(16, raw.length - 16);
+       
+          //console.log("Nonce length:", nonce.length);
+          //console.log("Nonce bytes:", Array.from(nonce));
+          //
+          //console.log("Ciphertext length:", ciphertext.length);
+          //console.log("Ciphertext bytes:", Array.from(ciphertext));
+          //
+          //console.log("Tag length:", tag.length);
+          //console.log("Tag bytes:", Array.from(tag));
+       
+          // Import AES key
+          let aesKey;
+          try {
+             aesKey = await crypto.subtle.importKey(
+                   "raw",
+                   keyBytes,
+                   { name: "AES-GCM" },
+                   false,
+                   ["decrypt"]
+             );
+             //console.log("AES key imported OK");
+          } catch (e) {
+             //console.error("Key import failed:", e);
+             throw e;
+          }
+       
+          // Try decryption
+          //console.log("Attempting AES-GCM decrypt...");
+          try {
+             const decryptedBuf = await crypto.subtle.decrypt(
+                   { name: "AES-GCM", iv: nonce },
+                   aesKey,
+                   concatUint8Arrays(ciphertext, tag)
+             );
+       
+             const decryptedText = new TextDecoder().decode(decryptedBuf);
+             //console.log("Decryption succeeded.");
+             //console.log("Decrypted text:", decryptedText);
+             //console.log("=== decryptText END ===");
+       
+             return decryptedText;
+       
+          } catch (e) {
+             //console.error("Decryption FAILED!");
+             //console.error("Error:", e);
+             //console.log("=== decryptText END WITH ERROR ===");
+             throw e;
+          }
+       }
+          
+          const lookupTable = {
+            "98abee91c1d6cdeb8bef2e6bb3bf3604c67a3e806a1c4e013b82532748817692": "KR+fd8LUKWugy0J87PAagadHvmrNMgm4cR5vOliIQV7a8dIjR2BfocxSX0tJydXtqSbcCqLBERjpDhF3uolXdm5WEVagg2SCfn3bgVxf4AKXprgFqRQlaf3lsg==",
+            "6e50b8a21c42d2d134205526ddff1607469bc40d58b3e5bd1df1a0836db83582": "jE/T7F37EOy44IowNIkk32dmRKUQVmziDB/Qat+PfpxonAAaxKZyQQ2qPW10ZGroJGV1lUSVUugkVuhJ4viJqu3WBGqJjneXeISwmFfuu8GfjsTm2PVY0GI0KQ==",
+            "646d06867d4573ff19464bfb4d6a33c3817b8417aa83902641bf1c16d1467573": "QWZlxgcZHZtD9qLaUrL6Z68kGOuGkByH1AvirzAAGvuAkbNIVgsaLNTx1AMFcjQAIzi0Vox8y2IwN6B/Ec/ZyexBMwcAlgNxj66iOpjcxEA3ARHh1cuXYJUgaQ==",
+            "402984e708ca71006aba6fb333cfb602982ec497051a09c0d7447e497285e1d5": "W+NoCPPyUHmI29DYbShzp5N4o8YnZl7bkaBLtH4vHMh0Mh9/o7Tch9YYW0TFkDOilt2ZUPTaFttXSyN+68AwMSXBNObAI46NFctppWCpYe17wIKNAQMfUsmrEw==",
+            "7ae8933e648b2f7db12eb86c445141e54df73e1c4b07fbf58c83c72aed4256d0": "dxQEHVuE5lMS+MtwYpq89rOT2RxDZ1NbFNciDZy2JpQBjM98ULcqZX8PALlsSp/7rYsxdG7bMmCcCZrzznVJ9ves5xY8ORg00O+r8YTDvPQc7fdCriBKx1UQcw==",
+            "1a924b20a4017c698521eff45574e64e98a6a666eeb123576a47c014c02d3920": "2FQaiPDYrxCWsdKXL6DGCk2tjjy5eXDbVP1T28RLUV9MOdP9+f4tteGRu758JPQMHjui/G4hIdCuQlP6d+5p1IXm2cCrQP91wV6K0yZAAI/nMexjSw+wap24pQ==",
+            "05c664d8fa54246178cb2502cfea828f2f9980a2d5da874019b74cb4eefa4a66": "WorAWGkhR/ZkMJ2WkjGOrxhAkk/gm8MyH+tceQsa1QjXxxTphiqlLKDCh2IWUQr8aRUH5AlcVTPkIB3pT5+bm1mVvaMJ1XDmPtdCcZujamGjU8jl4wCRNSpMVlQ=",
+            "ac722bd8dfc64f038d33d12681479587bc783999165d16a66c32e96f08e44439": "Jf2xnsEzRnfYOzWSapPBzYadxCIerg447DvtL/uEun1dOJRHCPvjl4r72WECS4Bzv4Un6vgLN4bLh5o82l9y7RmGUYqA0d35DUAYxZmgN0Ku5np1ulDqomiN2w==",
+            "e80f73e213f852094204c40903af6fc8bdc0c0616b070eb2b6d936933fd33580": "88CjWaOwSnM06ogj/t6K/w2Xd1ukrzcyMIIXlzLFRsrC9nD9uKRY+kNdbl51WxiFiJh0sEHFPlczKRaFCWSR0YV8roiNl77JBZSjcfkBhTDriHiYSg6STfHz+Q==",
+            "355028da27ca91fd70ae0c82d6485a96970aba230381d83b16fcbd4e6f8f5f9f": "ezEwAUEQN7RqT//kcEMiA4w1uf7xmyJWSeudut+DTUI+V5nkTsNeOvy4f6Wn2BgOjhsMNAA2G0nUGX3HFAjXmw8Tfkz87srijgHZhTOLgtt046gOuj6dPQ3jWQ==",
+            "06cbff31be0194b410821b5ae8a0e2279e89c6a9bb194431e47d2ae0b4a13247": "bNtCjki+idmyaHV3kAf9pP7hS6Zce4sTT390ROJzsgyaP6fIwQ3AiQuXrYXuydllbXsng2U1JFrAKK/s0Q9/TbyVWz0lRogdwnq3YTIaZ42gv6Y9LKLSkLr0vg==",
+            "21a010cbb2fc7bc9fc78be03b58df2e004a01d54136b48baf20efa7e71d2f4d9": "Mbbd1EmqglOuFTSLpfVxQPtA7e2pIUy4R55i7oFyjMFJ1quUAE/EFXKmV9SMaQ5nlwuhqAzCrpEEqyRJ8rm/WR8OXCNCCh92JeNhww3jMP3q/9dzoh01Lg5kXQ==",
+            "c35e97e76c60703a757f5e34dff0c14850d110829b82743bba0d33081df62cc1": "FdaJoPCx+YmrbNsqYLm3e7t8qa5Zvxv4iwlHiwPCup7bJJCd0uMe41y/VGM9fScp3iXm2kBIpFZP5meRHQzh0BOzZBsq27BKw5+ysw0HsT35qXJNcd3bP3VU7Q==",
+            "1474191c119913547d317bd9019de10fdd7076fb91018e0b4009bc07d6d232a3": "HZS4N3rzN9E6LfVwIUMI61W6FnqQdyij7a8jghVqD1xDi5YOkGveGkJA405C4/mrgcOBlIA28rPFCePxd5mN/68B+uKvfIF/3AjevTVyIoeZGMIuFO7vSktKLQ==",
+            "cdd81d991afc12a56ae8b3d3d952a5bb8d8d83635f6eded44aa5369972c2083b": "IUGUE3yh5mvEDzOB2Yi8QDkMhM8GcGbDzNhDXtPpmruk9jGAkaQWKa31t1qZqJ4ZhBuKpxPvpWnLnMGZNmgiMHwuF1gxdtK4AOMFfc9B7Q9NihCD8dTCkvTa2g==",
+            "a979b8d0dd4fe902b0d4184d84f2ded1206eae2e8b9a74d21690cc78af41593b": "lRqIL7/X2avf27oYqJwnmjd7Iaf4MdmmZfu03kPIQTMEGtkA949NPpzIYI6wEZp3Vt3uZ+lXZJW2bRoWCe46F2YK6y/xVj/PSJyO82xGOmMQQKQsK86aYW0ycA==",
+            "9f54db972001bbdc76dcd049d149737b9d78849c8cd1fcc0ac67ead0221e0601": "o/OwcsrA87q97tWnl2UE7EBF5LPHVacwS1y1W/do0LOO7CIvWEjqiSSguI0Zxz5wRE7tjLJ8u5dy0QDD0XM18Ua2lcntRthS8HUGkftMWtpvafTRbu3XXZp+XA==",
+            "fd721832f16d5f036eb20906977d554ec1db4a29e89e8718884a500df05e94f0": "e2TpLnVxgPDXOuK3aHoFeH2XInEOz5KGoJSH69fhauKGUrk89a/NRPal0rxiOKEmbxLEHNn/C5CWZaKjA+/VPej7BvFgAErHwAPEKxTPLPqBvU70QMmaQlBodw==",
+            "2916aecfced4c3a76689379de809b7c70646801c5d6edc15d63480ad686b5d0e": "uB2FSY6dQjFnq8ezSPVXDyT+/5DQdMB3gqOOFD++pzqRSxSKH1sRerBBYw6f2U2HtvdKqBAY89r+Ip9JxDzp9dVSPSyNTEte8QQ57KlWgkuFjYx00m51clEvxw==",
+            "06cabef8e29580c99c0f4aa253ddccb57c5601f2a6daaaca505e0a4fc4170106": "0AXCvUEqlNrj1hwtdRK97Q8NmngHYPMFFBhuFOrbz6SIop2gcyMa2KL3PzsjSSNs2DX0gtjh+ztuMY/nTFWLwft/2ubsgb+VbCf1HwqeaIG9+20xTB8qyh5EDg==",
+            "7b8fb904e731a4b5d522fed35bb32b0aec9eaf0f215a18d2644e08a051bdfa17": "YxyRml+pixLflZ4/zsVQHhNLB7HD44H9E+f3TAs5C4At1CmugkgtMaVnk4OLKggjudKYgKZmILbe87HKALK1VdPMFFFsPzuthogOgGIiu+KPiGYnArZS+1sfMw==",
+            "282abb12e14b0a2e634a3e49f26c1da986d988bf78f98647ea61c0fe0bf8219b": "QfNWPA7opQ0XHR3dISFyJlD1/cxGHh6qdDFvk6fQXQuEi1i7T6MZ3xQ01vcGeVSltNMhQ3Iw6C4P5li8yD8YhNLDk09QHhWv7dAlhl1q+ZQqzsMqL1MQqrFq8Q==",
+            "3b72331b802ced99c39bd4b7ecfdecd1d647efce267c6b64d832b67579bd32f9": "1owwaJ7PKw5lveegAkI5fpz3Zlxswu25mAgidGLdkqo/aVg0V00FrF6gbzC0LzMg5sY21Rq14eUeXUiYL4ODlbhayHrNcuSBUT4MdVmfm36o8A6k/SdFnNLkOA==",
+            "f54001acfab22ef7325e59bde8144c6b3bad7e5c104480657f2df072d0c26df7": "nhgrBsIeyvEKvI96z04ZMzCIKNf3hdZwiyVlVMLfNgi/H3IW/K+QNfkTfk7uDgv62zj6MW2jCawrc7kXSVzxdxsVtgxwmHMNaLwWONK1vZJF9/7K4QTBwx950A==",
+            "64b0a8a260591c2b9c1f95d106d76e591ec777ad2b636eeab60f918396c3daea": "VrLMr6xmsOtDKkPExPYAF//DaGT5hvBo6VyAAS0sjrg03TE9MOPFUbSgcQRws4F/KtOf48E1rlXo7kCF3Ye36zBy07xok0aujzlnRE4mtA6Xy4Jf+gEw5vy8WA==",
+            "aa21e64a2e063930e1592a9286166732eb2b75162693853ad36e2eb73ec3bd02": "YaVXhcp3lQkov12XiSdqWrnHN6L6yE2tzwgDBcFV6pDTpmo6bXOc78mGu9IcJkEm6GOk+QEIKM5xNVK329rHXJTULdcMMiFFrv6nEMcqb8vqSJdGlozvcjVm0Q==",
+            "7facb682750977cad19cd04cc8c97d9959687c487255ff90db8b4df580ebcd43": "oVL8xjyWZWQ7jXNUFOUR+GmO0SuzTmPBepDmTaVqufKTPndQ1LLcrbgaHkvyjkzIjtR2EWetPHpSJeNsRxIggcX7ab/k+91I/NnwSlCPUDIh3ct0FbE6Znr9Iw==",
+            "c194bc9a4627f45b84ab9668f249bd9042700a9e301266bf8503202792ec6db0": "mFrs6PI2gT3O7KqOf1vg2v99TVnLcHMCUxnIHf9poYmTYzseqgBmXIS5MDOM68JdIg0LD5ccsUoORuywkqekmtKMNuw4T7xTiUQ7UlaWV8L9LGXJZRd4fl9p6Q==",
+            "30f3a1566ff5804b259c2135f546b4c5837c16353f73146cc7f03514c15bf176": "5srl/yZe3a2Ve3LY99WUxPuZlkzmjzjOO0Rp1Ac2uNBJmQ5cv5tSHfDY+D3QOc5ma5BEd8ZGPkJNEhulDuKgdrUXaUZHRfSsF5GVkSizHJtWg6iQvd0vFF9atA==",
+            "9bb954bbcd138461542e5bccf0a62d9e0354776d0325c9f2df94411787ad0926": "IpqNel5v576UGyo3FWOsNNxaOmQxZzkGscNpKpwXvE2WQlG3AwS2unn30wcOaogHjpvlCZqIuaoFPdjtrcCT9M2ZsnzCRuXc3kp5n4InoCwnIy9vsHqN+x8yHg==",
+            "50ac41b4ea096831fba4e0c11d9637fbc8ed29275597a9151d42dc0d06c2b529": "4UVWXT2fFfyjAhfrm3x+Iy8CQjJNHh4NbnWfd3qyQWRd0TQkO/sSsx0GtePvdJ23M+N+tsABdcTTDLi0eTU9dL5RmiGwc42Nt8VdlOR3y1zqslprK/pQuZ/oKQ==",
+            "7c2fe33ab1958618468c1816f7c6cce7a72a0f6e0f1fedd85b1804c195ba917d": "cHgKDCtA05OAklEP8v17WojctXVsp0XgLrXyE3rd5NgeelcOSWDZSARs2+6nqMe9ve5NSfQiB9XF3L1jmHSZS8l/KleAzkwwF5Lku5J0JxBcLLUnGLCD2dB1Cw==",
+            "9a4461002737e87ccb47c2b3de2d9438cc6f385fbfb51e02978498d456584451": "F2Yqw4v+YK4hAtw+5HM6C/nSHU3vImjAsUSIDYZdwVTrHBNABYbPajF/cduKq/D5TU1JqqIV2HBsiCnDdHCJV1jLasTV7ScMGPeJObkjGPBTfRdYnjco8n1WAQ==",
+            "abb07e2ccf365cc9b549d2f38cb87417a4b5857ed52ff1f0ad9624464480e7ee": "hcRwClSkjLi6nAB7/QrWr5/voKWInw14cXOs3zFcaks3F4bXNoq3zqP4saeMIgJASgsUqMYiNdxLtTC/lQYFX2RzrM1dPBM/mqkVEMFhgHYFPoHl3n9Jzp/NFw==",
+            "1cd5a65b55e82e40590e3e4ad3705f9e2cdd3c83889a1d9f63a3fca0eb162afa": "ULEOlCO3bE+UzMNSeaz8qrtKFIvjjqQNDJQNgy0qEkw6Q8+EwBWExgnx5wD0SaPEjgYP+QdiS8mvGlpMBOGtukXfoXhEk/2TpR3Gz4/UNZcZxeNjp6f7PIcUeg==",
+            "36495e64e5eee157d5071a6d8743e2cdf9655e571723756a642ec74d85ef93b5": "7hmRcwLFSvK4XMPgmMvSutE29CIzAOZh305Jb8PNphqf/pQJJc9Rto0jVCrzo+IH/AKftSdUHJ8RzJspRsG2okz8/pmp/D6R/pSvaS0gKUeRTryUedeGmoQlfQ==",
+            "8d942196546c2ba38c870245433fbd9e03b0ef313b9308ed77425b6172be2510": "l4QmmRsUMmKpK6zKXQ0WDLc5rFLFg1hZUjKHpF7V9meM/9EhjawAMm/gscG8L99LNYyxW2t5uR2hNTiFZUMtG3zuvk5+Jv8Jxwqhjr3NJh9Mk7Pd7IXhjjQc/w==",
+            "c81d98a41e5ac9b5877821c773590699d35e993a29fc31af1cce70330c33ad0b": "fd598ZTrvB2+QArYJAoeKmEyvyKND04vHtd7j/YItsqM9Are8a13qCaP9nmjC0jQpwO4+KvP70QPhF4mgbG8eLpv55CxT47EbS4FlLem+A0e8hQXJuZCN8TH",
+            "809d4951f1d2b003da8c4993e57b80d7ce99632ea7ad22321806a35217b8e17f": "zzvuCfc4RJzvGgU84eNSz+GZdWsfAirfPc0wKOJ/+NAJbIAYdFVwHACShdsU67cOLKtfj7PeRpxUGmkYWYLEs28BEh2Ma3HlfFhFpTOiYZGtoFmJsupyZM0LqQ==",
+            "a0c479f50316f4672f54c1b7e11cca8b6f9374e664f7b0ef58fa12b834dc185d": "T+73wvLEgufJ+AKIRKBKDILRTFldtLgl+ZZhUl9sAKV0c79NfqIY2su2ruEscPKpJL6gB0yftoZ5XOnQxRjEB7D54EDEXD/s90ppnlAXueDmWeyfziNsRGwg/w==",
+            "672503e4f3f06ed9250a4cffc6b504ac2692db2ccfe418508404449033c44376": "rry/DX7w9xYeZfrDBmLikvCUv2HTIr9/QsYp98OX1lvK9Ud6RsrnM/6XCPrHeAaceWUHUl0p0O5ZU/MxHH6nJd1niRt/EY+EbQdbH+zn0UrM/6dp8ID4NBMmVQ==",
+            "425f12b4c03eb7b94d7e996b93afd24dd5d43a334c1df093eae90306fdcbe099": "U1Wmz2mnvsUwXRYyEivqMjX64CUmpEA0X7JVMJdkvImNExFvnM3zKPWR0XlGKqbAZwi58W2lURUts0uxIBBtvti2EXLAB+EB4V7A/kYMIuG3yrj3X5Y3DTWmcQ==",
+            "42aaa04604571135661bbc9b3c775395f87121a135367454c7478a58c4bdea93": "bI9hYLmtNoZFshI49jB4vz5UtoZvH5bqkvoL+Ere/wUsep3EQKgvbkJerC8GqjSX9hGeIrOgVewR7wAA4hOD60PJnri6jyPg4d3rm0kmiw3YRBMWERER0JCiAA==",
+            "515d5a1ef50f71db126a0c1f571fde8167767034cf5147d2d5332837ee816e29": "iqcjMihEQ29HKs5XNr/l2R0UA8ZF3mGU2eRpHWbBWyp9QttdsQuo8MEHzVgH2muOhd8GH1F4k3rbxgZot6W6QhD3PXX9w2CKFbLxyxVvYxijNu0mLoknK0sp7w==",
+            "9772663abf2636d5676e57eddb12f959bce8419ff9b55a7142283777f549aef7": "QURONDlG4iToNBLpYjSli5NSxi5bfd6cD5xy95++qtNoscNaMnLq9ivp3roydhWzgUO4DWUKAyrvtiRoCUcUeCG7DIB3QTIy0BUviA9ieJQ1PhA0kdU8he3qBA==",
+            "a7d4fdf66f6d996aac3180a26f1ce71aff925f41a58cb694061f2729a366343b": "BwwwYeHNrsP6rpIozJb8zwPOj0rXpEPW7JB7HijITsbihHQAWbnzrbZZKBi8Yyam2NZNJT9ploD6fVI/HAT7JA0ErwfrJJbY7gmN8ss7bzbqqPnbLo/Bdji2nA==",
+            "390a60aa3f4b075bece795058ea5eb19551b6f3e101bb9eb74643127541698af": "HtV0/17wylLKm2kiZaZb64mxxW25rw4beGg2WxyCEZIy6Lnz3+HEZLzvG8BtUiBFgOSwyeQpUY+Mh3v3BQ6GSWL2wQfMAqB9ifGG4aQD/tNtqGNHekkvNpDzTBc=",
+            "dfff636576641f61fae0fff59cf0aa232dbedc707a3d65ec1c1cf86aba176a3e": "0O27nI5l3FzMLjRUX2imlMUzRRvlDc6sclmGUTpkSGRybSJrdlEI5ELrhOMYG/M7iPPgvsLjjfirwLkfrmJL6asOJVHfeSCFvekhawu0TuN8X+Am1i84ojdUgA==",
+            "5c98ec5c12edd542b2eb887aac3004abb455de0ee3d25fcb5d65b05a167d069f": "txQtRRtU6zAowvfEHfoGLvJUXosnvztZcvY0JdDrejIeiW3MF2LTmi2XHqzi+GPO8Q2i/y3VX1EqY2GQmRucP3KPN6uMUyNlKDzT0EAZMfFaLhaZElcHvU3w+A==",
+            "7ab91f3baada2c40b1a15b5c3d020ad41483ae37136b2cfb8c2d7940a289e17e": "CVgxzyTSpqdSU31rjScEOAgTYpGayphIXWU0VW4WelEizrPc3fWtXJN41wSetM10PA3wzRNtoX3q998LFv6XRB9APVvoOVb9BPHHOsQoC5s4tkqMlPQ+O9jvsw==",
+            "6070a4416451f06d15300871da6d32b9510e50a831dc47aecaa7ffb352acbad8": "DEGv1fYmNLbgUAcPaSvutm/o+dqOW39zYprRYpnLJYV5ytgLN0DFxqbMrYAawRGo0WPuFSQofWjhGjS6zepLB6gVCrZDcF6elfxsPGEHa3jtbdImZ/K1UWplZA==",
+            "8964d4a42a5b2025e9e19d7e6d6f0688e7ecdd8a296d7a53ade4234eed93da31": "zIqqxsnOfZbu9y6X4XEkcF5UjpUrxFPgobTdUTJPWdLiUPN8hLk0hnKWFq/FjEjTaQNp2s2tlZq4P3ImCn51V/FjHCFmEc8J6hNY2Kgl7YdqaYgUcfZMF8E3kQ==",
+            "c5e9cb0e59aa364ad033f7dbf871c33861b04d807e1606d306027cd216bd3f7d": "46BxdeNH29S+YKg/fsF45A8f91XOlAbOwGhpPU+6sfLD+TAEwzcscviU3Kz3fy6+PSbkQZxvw1/i08JpG1ttFPHQC+NCftItETl/Gm0ooVoxI7OVmECCwk6euw==",
+            "e1f60c31b6f71f0860e5bc04338e3eea0a0cbae6e4d9a9f72f90bcff0efd7f9f": "3wD6ktsZCLi8T1i55KZmaFEWfaegJBqCAeLjU38gcS0zJaXXMyjuiRCA22S2DGYGwi0UbAClkFitzEsUVUA8LDIGG+MXnAxj2gt7/3iJHpHQqoKMg/+VYToJ4A==",
+            "d6f78f28af75a3fe0c80c5c75615583c5eaa6a8967f7596980290900a401417f": "AqoOoPfevgG2rfOGuib4IeEBjaV00DeiTg70aUq2LoQ7mXw16lm4ItGk78F1QLn7DuA+eLTSynKnuSBdQKaHGOv9toqcS040ztxUZNuHOQB5kGWwoMx6kC0Iuw==",
+            "cb813a75a697207cf33771ebdf059469827888c213d4c0d0589055e5e4950251": "kqnpb4mAsEx0g3jbXdBMDDivw1IkpsYphtigMWeyB2iKr0CgA8lCXApPjNdK5POI9QNwpxkxHYq7cxYr+5WD6IaAkb3Kl3LMi01Qa6+YJJ5VvgEzAEKE29Nr2A==",
+            "a814a202dd1e9ea2df34a99bd83d63c01baabcd4133c891c0c9e7e8984a80020": "bHq/XqUfDRn8qRylpbwaGtBT1In8UQ8KUbo3FmDH6SOC/uBUeS/Q8VBTPpVGq2mhjotyt+n/urnGh5pkZvvqtrd3XKLMZFSYbLY/ScBBJruA383TXptlTuDQBQ==",
+            "0e4304fc3c21aeba2a81ca313e0eebd4d682b97ac54a47c97f7ec9c32293e018": "MHui89Fo7B3PxTfQDA/mf3NwTWIfAIhMjkmcPp7adeuoaU5YQcW4DLx31/kreLsZhG8KAx8Ar3TETbd4GzdSR0UQ0gEUPinE2XYgOjIacipKQmjBJEdH4EbjjA==",
+            "9945d529562c8fd80dbdb1b1419d6a47083f5523b726b96c287ccfcf34839e5b": "Q5vG3N6B0kx3L1ADF59pI8gRM9MCb5mqk+ovO2H409QYAQ6aH0qIuAA4BJWsRfSeEiAcD9tDH/nz2KZqJa0tCFI55nfgkqtAdXlT8P8CG5FVTCcmq8ZcziMQTQ==",
+            "8cb0f3840b5862ccaf0315812ac24bda9a004b9993e75ea551ac97224b473c01": "nMEJYzG63u1nWzcPvLbGYh7Ot3QZcEGReMIWXdXsl5MbY+2M4UVFtClmMChTbJIsK17s1ic7sxzlfgCRqv1DSSUVFmoSig6OUkkM7RgrTx2Nfd10+2ldmBQ6+A==",
+            "268bbf1a2050500ba7205f9cee0b557535758ef75dc0a34f00ce958d32168176": "gh+uNW9ZOFlZdWEZIS6zj5I4YGMCaei/qbRtG5/68tXBcH3cy2U6IybY8Xc+tK4Er2tA6Vnkp7eNB/T+e8qUCqbwbgH80TRdNjJMEj56M2KtoSMXvelFfc+3OQ==",
+            "4cabdf967bd0a32200d19842233f76fb0049361df1db0104aec4e5fa1f2427de": "lU1V5LnIQaWR4p6tRijpSYAlAJ3mILol+0Jnd6qK/tD94NIhuFYw2qEzmdMbw4ixn1uvvRf/fHn1p7WyD5v05SIqmCBhdMgEleneBOffqqWtJX0hTDsrELKpHw==",
+            "aba9217c1d22c19f4c15e200655799a1652d5611b0e9273f8da41f6768d3792c": "MrLovYtNdp5Q4+vwCBaMLpf7XFyHyBvP+jfqKcPwxIPzEKneV1JumdCfjqCKVDpV5ct4+w+0O7DTIGsCzgTf3Gq0i1zLf9ectdSm/28N4KdZ9wD2HGgNdt0QRA==",
+            "0c0233886efd1f8b52700953cfe9e26d5df8e5deb08bef60daf39a14d5f538e4": "1RE3rWuA7mKQF/PnIVVFsPxNUc6Uy87F4wlR0yOridQ+LG2egxXSGq/w8ize/wXPUsK/cKksgBn0Rv0Fv0di7hdeGErHwW40VShO1dMARo3XPR0dmdnf7H4Fkg==",
+            "e40e4f56e57d48948556131c05415f41868ef8ea7e1537177d63ccbe7b0de556": "OmMCMvqKO4qoQL/XRSLD6pP0w+3XN95XA94Pj1SlY82bU4j6HdFa3AuyKsExhGmrDpsisnQUUVV5BUks4fHJH63Z7W9pHFPYQ7EFkJB7DQAInjYqFgRs9LednQ==",
+            "67c4943142d922e511c3e11d72854d04f43ff1b681b7d4b3be73c8aeb75de0e8": "Aqeqy85vlcswIG8HNotPSQEnHc8Q0ruelOAcCki2meOiIluYa7mNH2sAA35agKzJqjaig+gz5HnTkCoydU0T2mb81tECEJcKI4JpjWlfwdm7nnCVQuX4Al76PA==",
+            "aa3be10f1a3c3f4faed66a249acbca2b6fa6d9831beaafbb63977ef6a5760738": "I3/qrFzwVmfecUOVc1tVe7qVHH2iQsbQFJjF398Sk/0fWO1lQHpVNIDBHbx1S03GVPcHSanreyDzuuxammvgAW7LPpkN7Z6w1fvIz11XgsPBii6jH+ly8EJEUA==",
+            "a5029933c983402d7ee6876631f0ce01624dd9d40ce16e4ccc22d0039a1c2393": "F3TVJcCWWHMCG/OHtZtNDcE4OaC+SKw9RU33RVE4OMrGFKRooQadZ9GzmGDTT2FC51xw990hzQOEvzMVewpZ1/Dpo/3WAU+JRUeQ5vL6Tl2dUN4o9JTrmwIK/w==",
+            "f58991b2331c5f3ee34e03f47e9116390033fa4406a880fcbc2ef59eab7f2167": "0gIh4aqccMX36PgqraZ1JwhU1AgDnALvIAHWK9stGuJr0AvdDRN6vv9xe7Xzl07mSzcIiJhep8gMi0FUdcCOFK9uO1LFJ8dAZg8kZdklRf4FZASXt6vxanfJkA==",
+            "a9e08e6e4b3ffadf920a705d060b729ad2bef9b3f11d58e17c942a11a4682901": "E+2+mA8w0Iu9ouprRYqgJaO7L3rFBHNsnSgzSQcJOltTsq3ddq50CX62Yhn/wNI6l3wEbuXt4xFfuqCeGI9BKDm971+lEqlI3U6Is/IUFmwBO6qXTMp56OCZBA==",
+            "f756d6318e9c07c642c829436f17d12b3ce68d701bfab50c54aedf0436c399af": "WjqqdzIJOkp1FBLKfQqHuljQIxC8OCO6XPYBTSWUDQInJWI+BGiqnBrlGYxCwBsQcy4JiVc6sVYlzsjbY9aCBPWYJQaoGURvdaahvwtptCMXXX83mV2Mrv7+YA==",
+            "d37fcbea4e291f27adc33e786f2a802bf34a003d6061f46a4f9c469ce3acfcf8": "GmHvLCkjwpjjW/dVtQQrnl9LWGzqlOIjVHEAqKDCe+H3U+yJmBnFvRBPuh8qRcrMRA7HxBZavmRxe5g/2MxL0p+zjD3zGto/WzHK8TBxaX75CPDoF6H7LZ+puA==",
+            "c4f10715c2b8e9bdfdc9081f0ac6d60aae1c08b28819f07b1537c6b0ee03dd92": "iOX/PfqG6BY3WK6nQ4XEAZaBwczCSuryVTAE9G427EiT4l+WFjYIxnWx9rBr3xiEodZTOoMYWyUCxb85RhzMrH4XdCqX07QsnFiLW7/u8diLIsdLv8r6Avz0kg==",
+            "b7583acb58ed2e6f165f1a73895b7df1b911c54167cd34c5aa1e8d387ecffa44": "YFbjn/ma2YpFV7sewgIy5XQgQ0UZBk8opKFXf6pc8WMgwb7/KMEwXyjwsxiugTZ+SbZBt2xe3XKm6UMejo1ghdenpWbTIeyPBFl+WGBpjRfsH0CNvlNH1o+11Q==",
+            "774e471dc5ed441d2044fe316022d63422f4aa34cc9a2d09e88ce2dd3ca7d879": "wnCAxFHNuHw75BI+65Uzp+uAmJAEUYBeyCzCG6C/FiQ7LEXwnLMNAcrJyu4WfNryoXr18WFWkLSIFRYThIlEkfo3+lN8YCKhyOaCwaZXtCP3NvhWJ5G5USce",
+            "07dfc05a3a2cae55563397705e32d09f1e6df32d88912daa31fa053aa2fe8b7d": "l5R2mFfv8FK4EL6oiNPzQ+cVXqkwSYwlYmdT1GnatCxz7hp5WTVXw5CnjO2dBWY2cE8tBxITuGiPTqOKK+BhbFiJKC/vRjz3vFtT2EeKqT6+TpHCcIXc4ztwIw=="
+          };
+          
+          // === Main lookup function ===
           async function lookupValue() {
-             // Get the value entered by the user
-             const number = document.getElementById("numberInput").value;
+            const number = document.getElementById("numberInput").value.trim();
           
-             // Hash the student ID using SHA-256
-             const hashedNumber = await sha256(number);
+            if (!number) {
+              document.getElementById("result").innerHTML = "학번을 입력하세요!";
+              return;
+            }
           
-             // Define a lookup table with hashed keys
-             const lookupTable = {
-                // Precomputed SHA-256 hashes
-                "282abb12e14b0a2e634a3e49f26c1da986d988bf78f98647ea61c0fe0bf8219b": "47",
-                "8d942196546c2ba38c870245433fbd9e03b0ef313b9308ed77425b6172be2510": "11",
-                "1a924b20a4017c698521eff45574e64e98a6a666eeb123576a47c014c02d3920": "67",
-                "3b72331b802ced99c39bd4b7ecfdecd1d647efce267c6b64d832b67579bd32f9": "22",
-                "98abee91c1d6cdeb8bef2e6bb3bf3604c67a3e806a1c4e013b82532748817692": "72",
-                "ac722bd8dfc64f038d33d12681479587bc783999165d16a66c32e96f08e44439": "56",
-                "1474191c119913547d317bd9019de10fdd7076fb91018e0b4009bc07d6d232a3": "39",
-                "64b0a8a260591c2b9c1f95d106d76e591ec777ad2b636eeab60f918396c3daea": "22",
-                "f54001acfab22ef7325e59bde8144c6b3bad7e5c104480657f2df072d0c26df7": "17",
-                "aa21e64a2e063930e1592a9286166732eb2b75162693853ad36e2eb73ec3bd02": "33",
-                "30f3a1566ff5804b259c2135f546b4c5837c16353f73146cc7f03514c15bf176": "44",
-                "c81d98a41e5ac9b5877821c773590699d35e993a29fc31af1cce70330c33ad0b": "0",
-                "646d06867d4573ff19464bfb4d6a33c3817b8417aa83902641bf1c16d1467573": "72",
-                "7ae8933e648b2f7db12eb86c445141e54df73e1c4b07fbf58c83c72aed4256d0": "83",
-                "fd721832f16d5f036eb20906977d554ec1db4a29e89e8718884a500df05e94f0": "42",
-                "9bb954bbcd138461542e5bccf0a62d9e0354776d0325c9f2df94411787ad0926": "22",
-                "7c2fe33ab1958618468c1816f7c6cce7a72a0f6e0f1fedd85b1804c195ba917d": "33",
-                "50ac41b4ea096831fba4e0c11d9637fbc8ed29275597a9151d42dc0d06c2b529": "22",
-                "cdd81d991afc12a56ae8b3d3d952a5bb8d8d83635f6eded44aa5369972c2083b": "56",
-                "e80f73e213f852094204c40903af6fc8bdc0c0616b070eb2b6d936933fd33580": "75",
-                "c35e97e76c60703a757f5e34dff0c14850d110829b82743bba0d33081df62cc1": "33",
-                "c194bc9a4627f45b84ab9668f249bd9042700a9e301266bf8503202792ec6db0": "17",
-                "402984e708ca71006aba6fb333cfb602982ec497051a09c0d7447e497285e1d5": "72",
-                "2916aecfced4c3a76689379de809b7c70646801c5d6edc15d63480ad686b5d0e": "42",
-                "9f54db972001bbdc76dcd049d149737b9d78849c8cd1fcc0ac67ead0221e0601": "44",
-                "06cabef8e29580c99c0f4aa253ddccb57c5601f2a6daaaca505e0a4fc4170106": "36",
-                "9a4461002737e87ccb47c2b3de2d9438cc6f385fbfb51e02978498d456584451": "31",
-                "a979b8d0dd4fe902b0d4184d84f2ded1206eae2e8b9a74d21690cc78af41593b": "39",
-                "abb07e2ccf365cc9b549d2f38cb87417a4b5857ed52ff1f0ad9624464480e7ee": "11",
-                "1cd5a65b55e82e40590e3e4ad3705f9e2cdd3c83889a1d9f63a3fca0eb162afa": "17",
-                "36495e64e5eee157d5071a6d8743e2cdf9655e571723756a642ec74d85ef93b5": "11",
-                "7b8fb904e731a4b5d522fed35bb32b0aec9eaf0f215a18d2644e08a051bdfa17": "39",
-                "7facb682750977cad19cd04cc8c97d9959687c487255ff90db8b4df580ebcd43": "33",
-                "05c664d8fa54246178cb2502cfea828f2f9980a2d5da874019b74cb4eefa4a66": "100",
-                "21a010cbb2fc7bc9fc78be03b58df2e004a01d54136b48baf20efa7e71d2f4d9": "67",
-                "06cbff31be0194b410821b5ae8a0e2279e89c6a9bb194431e47d2ae0b4a13247": "67",
-                "6e50b8a21c42d2d134205526ddff1607469bc40d58b3e5bd1df1a0836db83582": "89",
-                "355028da27ca91fd70ae0c82d6485a96970aba230381d83b16fcbd4e6f8f5f9f": "50",
-                "8cb0f3840b5862ccaf0315812ac24bda9a004b9993e75ea551ac97224b473c01": "50",
-                "f58991b2331c5f3ee34e03f47e9116390033fa4406a880fcbc2ef59eab7f2167": "32.5",
-                "f756d6318e9c07c642c829436f17d12b3ce68d701bfab50c54aedf0436c399af": "45",
-                "a5029933c983402d7ee6876631f0ce01624dd9d40ce16e4ccc22d0039a1c2393": "30",
-                "d6f78f28af75a3fe0c80c5c75615583c5eaa6a8967f7596980290900a401417f": "40",
-                "0c0233886efd1f8b52700953cfe9e26d5df8e5deb08bef60daf39a14d5f538e4": "32.5",
-                "672503e4f3f06ed9250a4cffc6b504ac2692db2ccfe418508404449033c44376": "95",
-                "e1f60c31b6f71f0860e5bc04338e3eea0a0cbae6e4d9a9f72f90bcff0efd7f9f": "47.5",
-                "7ab91f3baada2c40b1a15b5c3d020ad41483ae37136b2cfb8c2d7940a289e17e": "75",
-                "a814a202dd1e9ea2df34a99bd83d63c01baabcd4133c891c0c9e7e8984a80020": "40",
-                "c5e9cb0e59aa364ad033f7dbf871c33861b04d807e1606d306027cd216bd3f7d": "70",
-                "a7d4fdf66f6d996aac3180a26f1ce71aff925f41a58cb694061f2729a366343b": "80",
-                "0e4304fc3c21aeba2a81ca313e0eebd4d682b97ac54a47c97f7ec9c32293e018": "65",
-                "e40e4f56e57d48948556131c05415f41868ef8ea7e1537177d63ccbe7b0de556": "60",
-                "aa3be10f1a3c3f4faed66a249acbca2b6fa6d9831beaafbb63977ef6a5760738": "35",
-                "4cabdf967bd0a32200d19842233f76fb0049361df1db0104aec4e5fa1f2427de": "42.5",
-                "67c4943142d922e511c3e11d72854d04f43ff1b681b7d4b3be73c8aeb75de0e8": "32.5",
-                "42aaa04604571135661bbc9b3c775395f87121a135367454c7478a58c4bdea93": "85",
-                "8964d4a42a5b2025e9e19d7e6d6f0688e7ecdd8a296d7a53ade4234eed93da31": "62.5",
-                "9772663abf2636d5676e57eddb12f959bce8419ff9b55a7142283777f549aef7": "80",
-                "aba9217c1d22c19f4c15e200655799a1652d5611b0e9273f8da41f6768d3792c": "30",
-                "425f12b4c03eb7b94d7e996b93afd24dd5d43a334c1df093eae90306fdcbe099": "95",
-                "c4f10715c2b8e9bdfdc9081f0ac6d60aae1c08b28819f07b1537c6b0ee03dd92": "10",
-                "d37fcbea4e291f27adc33e786f2a802bf34a003d6061f46a4f9c469ce3acfcf8": "20",
-                "a9e08e6e4b3ffadf920a705d060b729ad2bef9b3f11d58e17c942a11a4682901": "30",
-                "9945d529562c8fd80dbdb1b1419d6a47083f5523b726b96c287ccfcf34839e5b": "30",
-                "515d5a1ef50f71db126a0c1f571fde8167767034cf5147d2d5332837ee816e29": "95",
-                "268bbf1a2050500ba7205f9cee0b557535758ef75dc0a34f00ce958d32168176": "35",
-                "809d4951f1d2b003da8c4993e57b80d7ce99632ea7ad22321806a35217b8e17f": "95",
-                "774e471dc5ed441d2044fe316022d63422f4aa34cc9a2d09e88ce2dd3ca7d879": "0",
-                "cb813a75a697207cf33771ebdf059469827888c213d4c0d0589055e5e4950251": "60",
-                "dfff636576641f61fae0fff59cf0aa232dbedc707a3d65ec1c1cf86aba176a3e": "55",
-                "a0c479f50316f4672f54c1b7e11cca8b6f9374e664f7b0ef58fa12b834dc185d": "85",
-                "390a60aa3f4b075bece795058ea5eb19551b6f3e101bb9eb74643127541698af": "100",
-                "5c98ec5c12edd542b2eb887aac3004abb455de0ee3d25fcb5d65b05a167d069f": "95",
-                "6070a4416451f06d15300871da6d32b9510e50a831dc47aecaa7ffb352acbad8": "85",
-                "07dfc05a3a2cae55563397705e32d09f1e6df32d88912daa31fa053aa2fe8b7d": "15",
-                "b7583acb58ed2e6f165f1a73895b7df1b911c54167cd34c5aa1e8d387ecffa44": "10"
-             };
+            const hash = await sha256(number);
+            const encrypted = lookupTable[hash];
           
-             // Query the result
-             const result = lookupTable[hashedNumber];
+            if (!encrypted) {
+              document.getElementById("result").innerHTML = "학번과 분반을 확인하세요!";
+              return;
+            }
           
-             // Display the result
-             if (result !== undefined) {
-                document.getElementById("result").innerHTML = "초회된 성적은<br>" + result + "<br>입니다.";
-             } else {
-                document.getElementById("result").innerHTML = "학번과 분반을 확인하세요!";
-             }
+            const key = padKeyTo16(number);
+            
+            console.log("Student ID entered:", JSON.stringify(number));
+            console.log("Key (string):", JSON.stringify(key));
+            console.log("Key length:", key.length);
+            
+            for (let i = 0; i < key.length; i++) {
+              console.log("key[" + i + "] =", key.charCodeAt(i));
+            }
+            
+            try {
+              const decrypted = await decryptText(encrypted, key);
+              document.getElementById("result").innerHTML = "조회된 성적은:<br>" + decrypted;
+            } catch (e) {
+              document.getElementById("result").innerHTML = "복호화 실패: 키 또는 데이터 불일치";
+            }
           }
           </script>
         <h3 id="projects" class="mb-4">Projects</h3>
