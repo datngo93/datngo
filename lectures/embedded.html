@@ -278,103 +278,211 @@
           <p id="result"></p>
 
           <script>
-          async function sha256(input) {
-            const encoder = new TextEncoder();
-            const data = encoder.encode(input);
+          // === SHA-256 ===
+          async function sha256(str) {
+            const data = new TextEncoder().encode(str);
             const hashBuffer = await crypto.subtle.digest("SHA-256", data);
             const hashArray = Array.from(new Uint8Array(hashBuffer));
-            const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
-            return hashHex;
+            return hashArray.map(b => b.toString(16).padStart(2, "0")).join("");
           }
+          
+          // === Key padding (Python compatible) ===
+          function padKeyTo16(keyStr) {
+            if (keyStr.length >= 16) return keyStr.slice(0, 16);
+            return keyStr.padEnd(16, "\x00");
+          }
+          
+          // === Helper: concatenate Uint8Arrays ===
+          function concatUint8Arrays(a, b) {
+            const merged = new Uint8Array(a.length + b.length);
+            merged.set(a);
+            merged.set(b, a.length);
+            return merged;
+          }
+          
+          // === AES-GCM decrypt (Python compatible) ===
+          async function decryptText(base64Data, keyString) {
 
+          //console.log("=== decryptText START ===");
+          //console.log("Base64 input:", base64Data);
+          //console.log("Key string (with escape):", JSON.stringify(keyString));
+          //console.log("Key length:", keyString.length);
+       
+          // Log key bytes
+          const keyBytes = new TextEncoder().encode(keyString);
+          //console.log("Key bytes:", Array.from(keyBytes));
+       
+          // Decode base64
+          let raw;
+          try {
+             raw = Uint8Array.from(atob(base64Data), c => c.charCodeAt(0));
+          } catch (e) {
+             //console.error("atob() failed:", e);
+             throw e;
+          }
+       
+          //console.log("Raw data length:", raw.length);
+          //console.log("Raw data bytes:", Array.from(raw));
+       
+          // Extract nonce, ciphertext, tag
+          const nonce = raw.slice(0, 16);
+          const tag = raw.slice(raw.length - 16);
+          const ciphertext = raw.slice(16, raw.length - 16);
+       
+          //console.log("Nonce length:", nonce.length);
+          //console.log("Nonce bytes:", Array.from(nonce));
+          //
+          //console.log("Ciphertext length:", ciphertext.length);
+          //console.log("Ciphertext bytes:", Array.from(ciphertext));
+          //
+          //console.log("Tag length:", tag.length);
+          //console.log("Tag bytes:", Array.from(tag));
+       
+          // Import AES key
+          let aesKey;
+          try {
+             aesKey = await crypto.subtle.importKey(
+                   "raw",
+                   keyBytes,
+                   { name: "AES-GCM" },
+                   false,
+                   ["decrypt"]
+             );
+             //console.log("AES key imported OK");
+          } catch (e) {
+             //console.error("Key import failed:", e);
+             throw e;
+          }
+       
+          // Try decryption
+          //console.log("Attempting AES-GCM decrypt...");
+          try {
+             const decryptedBuf = await crypto.subtle.decrypt(
+                   { name: "AES-GCM", iv: nonce },
+                   aesKey,
+                   concatUint8Arrays(ciphertext, tag)
+             );
+       
+             const decryptedText = new TextDecoder().decode(decryptedBuf);
+             //console.log("Decryption succeeded.");
+             //console.log("Decrypted text:", decryptedText);
+             //console.log("=== decryptText END ===");
+       
+             return decryptedText;
+       
+          } catch (e) {
+             //console.error("Decryption FAILED!");
+             //console.error("Error:", e);
+             //console.log("=== decryptText END WITH ERROR ===");
+             throw e;
+          }
+       }
+          
+          const lookupTable = {
+                                "40c4ae61417156ca48bd9bf6679a29c970d602bbae0fb6ffaa6ed543f6232066": "kojR6cKas8lliQ1soDEa+uo3T1+3jpQTmQ2/PGyt7vyVdQ==",
+                                "4db9574bbab165e5c61a8507d619b68c3c0e6f8f2e8083a4117660a078b03787": "R9ROOnyfUzPnhXHXoc6s28K1LR2dMiYzGoMqIuwUicVuFA==",
+                                "40f1ccf56bbbb07353fca41ae2552d180445519c146297a052938f439e6b6aa0": "TBf6iYlIlGw9ctGhEKucVBAGxMb1wxvrMwz4T/ESJ+du/OU=",
+                                "e4c639c3a6e745207227f3c657e944af009eda2c1fd423f95898fca524492cd1": "RR+1PkZw82ujJVQj/oAmYnurOInK1UeqabBVXA75lQ0Pzw==",
+                                "d915a1700e91e799b1d0d7732028c82e35d611fe1d146ed579774cfc89f64907": "DnzKY/azDR4pJsKV/Y7S+9MFdYMgt7mTRvtqQJyLp7KiGjA=",
+                                "3b1541a072fb9c8d594616407189a0a0a52d113e2c35140844925ab553dd6fe5": "9xOO7L8fYBEiMo+dUBKfeimsUaMKabSwVP/dledrMBXfYOw=",
+                                "d9f6cb94410d0d721e2bd733f5fd9e353cca1d6929610d3e69806f901243c297": "Bew52zqeJosHPLj57LGvNUaJban3yA6I03DTNOmCY92pMA==",
+                                "fc9ab8840d2519a13b424d9764e22bf1e7782f40749c9454219f7b45e80b3cc4": "mvaxZfDLHsURYK9XfeeVZrfoptaKBRGjLRgRrzTRJv65NFc=",
+                                "36d26f3ec8dc40ed8d5edf1a37d5d34296472f9ddb42f1a7c169dc1bcee5580c": "Kvtb5FXe9lVTGjvI7jJKySxCliWfZoym39zW5T0sWegzlg==",
+                                "d8bfebc954a01ac9873a04cbb097deb13343f511da08ac98ee585cffc74be071": "/Sa7pjUdSyRwEmhAmCKZrp3EV+ilszSJRMb1qxEkc+sy+A==",
+                                "757ab27ece35b06c16d3e59c429dbf361bec7f7f2287ebc594d4e1b80f772a09": "Tt83d99O0ciXA7N27OSHYcL3PlxKp1LtYllm1xVGw/tlMIA=",
+                                "2cf8159cfb59e0f2110199e49a183c6564ce8d5063fe40e87761be1240fdb4d8": "GPiSDtOI5Us8CaJ+lVVUZYd/Dee9POaOZAEMYJmrsFaoRA==",
+                                "8d5c20e91a3d406a51d49f336c4cbdc04fab31dd1de70c90d7a1221ba59c65ce": "j+fEAvpPSIyAVp7xOciZbGCJQWzS8GfiiogTf1YREErwQCs=",
+                                "f4d7a8655b4a1118cfd527d0a484677bb161ca042faf6748fda0f1243e0632eb": "EEqGsDqPYMeawBUMLwLWmO4FYz6GKWAcV+QDZ80KPdNk1qA=",
+                                "b40ee6c838fffc6bf7198f2a843dacdf272ffc01d382d74ae79e20b67bca6c25": "hzF5pPip+LqYhHYoWL4GToA+n+smCA56TZNDrbfiRM+KCw==",
+                                "eb1df18e1424c7089f610b4697c5875c03eee7c746cedcde0be1da5016c78716": "yEbKak0FAoYtQZB8Jt1yZ3nQO63KwE/jeN6/TqXvH7NwdgI=",
+                                "b3ea5f902be0352475749acecf6d6ddadf68f6e0a285b6e2e6afb21d57cfd088": "DPEVAliR+GBk23ejTEEtpL5ub3un8CVWtVWmKje+/ghPljM=",
+                                "8708ebaebb3ed7022354508a43d7523c0239dcf00ceac8a53cac10da2aa67baa": "Z0xvdYFiWmjFK51lYzpuU4vd9WfMx8CyjmkyBMGmvgYnww==",
+                                "ea33e71586ac9318be3ea5b2e3e81cf156faadf0f17f0afa1ccfc0da85114de7": "Erwpv2cLHoTDdlHVD7uMCLVzshJ+OBYHYLRIzVZ4ZpDwVA==",
+                                "f756d6318e9c07c642c829436f17d12b3ce68d701bfab50c54aedf0436c399af": "k+6pp1B5hlStmRyIxoBKlFfrGFJpYhOxREtzRKzy3OXwEA==",
+                                "1a924b20a4017c698521eff45574e64e98a6a666eeb123576a47c014c02d3920": "GVFtVsxGQHMbOmzU/UGyDsHKaHOP+CWNN3ab8Wqd2uRzvZw=",
+                                "98abee91c1d6cdeb8bef2e6bb3bf3604c67a3e806a1c4e013b82532748817692": "ExbpX+JQMu3XdcGhGFdyZHvglgjvgakezzJTVwlMglJCkIU=",
+                                "1474191c119913547d317bd9019de10fdd7076fb91018e0b4009bc07d6d232a3": "IlsztXj8kfTDJNDjK5dCsQKMZ9X9oRKxKhopgjwIyd+FLg==",
+                                "f54001acfab22ef7325e59bde8144c6b3bad7e5c104480657f2df072d0c26df7": "f7fOlJs6eX+kV8/sHkDV89fLsMTwKhoJ2XdwHhl9skF4eg==",
+                                "30f3a1566ff5804b259c2135f546b4c5837c16353f73146cc7f03514c15bf176": "OiPHhcWphW6ZqhEKkv02WS3jI3poRMq5GN2LHj9/dqU+",
+                                "fd721832f16d5f036eb20906977d554ec1db4a29e89e8718884a500df05e94f0": "W429pK2SSXPBPMhX+9PJ6jQUKWEN9KOm5AkQwVKp86k7uQ==",
+                                "9bb954bbcd138461542e5bccf0a62d9e0354776d0325c9f2df94411787ad0926": "4bq+0sKdkhH/01vQJrD9P5InTD1fI9gP2+lSX5FfO5HHx20=",
+                                "abb07e2ccf365cc9b549d2f38cb87417a4b5857ed52ff1f0ad9624464480e7ee": "vv80EatoKknzE7vReDSgEVcXw/EVk2BK1neKvXQJyk/qhw==",
+                                "a7d4fdf66f6d996aac3180a26f1ce71aff925f41a58cb694061f2729a366343b": "qlVH/ocOKXJdwsNg2gAm4Q9U4aSntAhzSu563p/aUALBvg==",
+                                "8964d4a42a5b2025e9e19d7e6d6f0688e7ecdd8a296d7a53ade4234eed93da31": "6hajgSLCYKOHmS3KAp7fx8PUl+MPtpN1OUtIITavrcz/q9c=",
+                                "9772663abf2636d5676e57eddb12f959bce8419ff9b55a7142283777f549aef7": "u0O7hqx8EHNuCMImmcxbNwdJEZt5QR91IMGx67/kaHYi",
+                                "9945d529562c8fd80dbdb1b1419d6a47083f5523b726b96c287ccfcf34839e5b": "Hw/WRAZsf+cmepr2kUcZf/+XQx9CHT3Hi0uIdtVUwJqAfw==",
+                                "a0c479f50316f4672f54c1b7e11cca8b6f9374e664f7b0ef58fa12b834dc185d": "WG5tLHFRrgBEMzeeT1nCo2K2FI5ARtUcXub4oWnHHfAcqQ==",
+                                "002834b24a1c612febf10b8346c9516b33a14442ce51e3d96894001e6a6e4bd5": "e9ArfzDu954W3gnJY7weLCpqYrk16Neg4vdU+RqUAjBlBA==",
+                                "b66de3142e3f2de59de3feb21ac0538e5ccbcbb86c50924ed650de270a61e627": "7mjGji3wwXgXFpbdYABW9MNSvRJZIDpiET9zoU+3KAlUDg==",
+                                "bb23fb3e165a4807bf1a61f7996a34563a5e9de655293a1008f7850cfd76e2b1": "P4f0/L6vwHabey9D1rGOA0RQjxO398qdxzdnbtGEsHRdasA=",
+                                "86e86aca9765ff42bb4cc63d9994395e7413e735223f1b848ac4a438049b4daf": "Y/9movLFakBxZvLboMNPvdCtP98jqVknT8jaUqMR15q/ZQ==",
+                                "3079df7417d1d123678ff7aca8f87b90e1283a7a96faf90c66ee57c306eef40a": "Z+4ZJ24iaQo7Ld54aOmDDvkLO6OU7Y3FmY7fhuFRYTPqNg==",
+                                "75595180154684a8e068748ed1598240a0eb1ac8abe45a93a481092962251754": "fT2LRzdwc8V2oBuyst17eV97u6rUwbyoh4FLYoiyEVw/wg==",
+                                "685a898ceb8d44dd95d7da28f2e67ce7f5a665f55d8903a264fa7160d184e507": "OuCCX+hK0QD5YJUP+0W0PbKg9rw30/nFNki34vb7t4Kqqg==",
+                                "43878b3053d8b63f160c76d87f65d26f35b7ad6e1c6686ec9de888c6610706b7": "EoN+6w6pUMFVlFz8FMjPcQj2kHmAFX+HBT0VsO/EpHALblA=",
+                                "e75d13cea016b104fc75b74e3d5f69d90340bd9085fcfc5cf5b35dbd4df074aa": "J66TDhxWo95r+ydJa34epjlHj3NUtVagzVMhH6RZwNuoQw==",
+                                "639f9bb8fa433f91fc5b9273506dca778aef05d88d8a91c2679c94f553343390": "HTGy4v0n9wKhUch5wJJCLViON2XXd9TXX7rP1T5eN5dwvA==",
+                                "0984c1b15b83d3ee6a9e22f3f776bded02d1bb0fac3cab6fc0a30dfbaad69cce": "qja7oJyHBRTx4AbRmS8ufsxpP3HMhDdNVa7mK4OEHmqfAw==",
+                                "cb35441e044108be89ef40b61c4f13df4baa78bc329d71f3e042fea85b607cf2": "GkD0+ZUEdxlTaiMVnwHWO0c37FAd6iyi6+8/VVSxdz37wg==",
+                                "282abb12e14b0a2e634a3e49f26c1da986d988bf78f98647ea61c0fe0bf8219b": "mBe19WVN7iUn9/0oauN/lMI1ObdDD9kh83IZVyTwfTTa",
+                                "8d942196546c2ba38c870245433fbd9e03b0ef313b9308ed77425b6172be2510": "LIHoCHS/1QDrCUFpF1Op4ZbOGenGpUGaw29zkfATREn7ZGg=",
+                                "3b72331b802ced99c39bd4b7ecfdecd1d647efce267c6b64d832b67579bd32f9": "rimgDxKE04dtUU44zdtpDr+mg7Fb5yENusx5WYQcCNM7cg==",
+                                "c81d98a41e5ac9b5877821c773590699d35e993a29fc31af1cce70330c33ad0b": "F4AdJqk2MdQshOp4yAxXrdpP9jLAmdFBfAPDbrbShfN4",
+                                "7ae8933e648b2f7db12eb86c445141e54df73e1c4b07fbf58c83c72aed4256d0": "r7Re5J08FO2HSpl6SF5eshorNGE5OwmvVEqvdHjdjbzNiw==",
+                                "2916aecfced4c3a76689379de809b7c70646801c5d6edc15d63480ad686b5d0e": "iFTzX6aPhInQ4OPUDpH4/gTs3Cy2lZi/5HafsHQVwZfqy7M=",
+                                "9f54db972001bbdc76dcd049d149737b9d78849c8cd1fcc0ac67ead0221e0601": "N/tKOv+CdOk6V2CvLhMEn4WujVVkMf2gbdiSz6vM0/TwDA==",
+                                "05c664d8fa54246178cb2502cfea828f2f9980a2d5da874019b74cb4eefa4a66": "mAuNPT5tgolbBfMj3eNs2wdYj7vvHqrunU2yiIUkTyoDhUY=",
+                                "0c0233886efd1f8b52700953cfe9e26d5df8e5deb08bef60daf39a14d5f538e4": "/745bLZZmm9+FW3XpV0Wienj3TUMqHTxLqefjOzNza5LVg==",
+                                "672503e4f3f06ed9250a4cffc6b504ac2692db2ccfe418508404449033c44376": "S4VUVMYXt8U9icy3QBXVkH/bY0PD9BquYkKEy0YuUUI3ug==",
+                                "e1f60c31b6f71f0860e5bc04338e3eea0a0cbae6e4d9a9f72f90bcff0efd7f9f": "L9VmgTmVtBZeC67cL3pkBbcNWUhjWjF1GrPAPXjbur+EGg==",
+                                "7ab91f3baada2c40b1a15b5c3d020ad41483ae37136b2cfb8c2d7940a289e17e": "7sLgpodcLCOuC3DrSlPrUp+F3M1DATjWSToI6z/BlughbQ==",
+                                "425f12b4c03eb7b94d7e996b93afd24dd5d43a334c1df093eae90306fdcbe099": "yIm2B/zkkRZ1a8oCkJYD3LU/ecFzHOvPh+Nk4JebeXXo/Fc=",
+                                "268bbf1a2050500ba7205f9cee0b557535758ef75dc0a34f00ce958d32168176": "EFoqgMBcXy5jO5rCGIozJ0VEODPYvR56IJLkErrQcjjKJg==",
+                                "809d4951f1d2b003da8c4993e57b80d7ce99632ea7ad22321806a35217b8e17f": "GV4HkuM3ECaEmjsqK5CPMK0sB6K5mXewHAcY/HkD+hVmEQ==",
+                                "fba4f899d6ed5a5007d80c28c46924922464ea790d5b007400b4767b32be1fcd": "/8JqB4kNnCrZdyi2BG70ETgL4/KksUZ2wYw47Eb6UZCUyg==",
+                                "b2054222553b09eaf874c2f3642873cf484a51b718213448b852c4044485ec75": "3OGPOzWGrDd0y+9+Nx1ITnq20DJXmbDW1FAvmgEWjtzGvg==",
+                                "07a08f81dfcf1a8cc5a3b674aae572a43efef2ffebe4da9391729b6997a160d6": "Zn3DA1d8RqCbARVBqRhfY0ZrUWc2ddrxLgUv6ORCDWt5Kg==",
+                                "958822e39316eff8f42ad12a6565470df44074502758b5f3b8bf93e3b1119106": "LS5vhk4V1AlYkQXLWEvYzebLkBmQPILDEGuESJ6DU+MOgw==",
+                                "c9e86ae9740c2c0f81e51324b5d340ae5b5143b53eb7c4370af4375e0a1a46ff": "wCAoOH5ogmtMC/ms5sKec12hrZSflPLroTZ3E2OOPpn+a6M=",
+                                "80285e75b361fc91e1e2dc6c2ce7697c5f01ddc1ae56d6f074b3266070e4e5e6": "90htp4GwlMxgdbsZQNSkTFCIq1Xgej+0ZcTk05uXFBPPWg==",
+                                "0c60ef2b2be1b6043be24dc6e3dd6d55932d5d446d63c962eba00ba72170a65d": "Q4JznT8g0CzzV678OD8u2vgXMQOTMa52fc0q7ywV1/kCrQ==",
+                                "0c218e90aabaa80e6d5e555d1379de97a587d32341ba29aebc6e139fed6d3347": "mjq2vhhvcsak9gIS+EYzgwEWq1xZMzCV2vdiDiogpMnAMw==",
+                                "73217c4bf6187831104978012c876fc2b99c941d7a498ea58d8f3002f2f22416": "NucGdmrTtqVYhaq+0ZgyEa/722CJtxHcgTynsCLb0DZvDg=="
+                              };
+          
+          // === Main lookup function ===
           async function lookupValue() {
-             // Get the value entered by the user
-             const number = document.getElementById("numberInput").value;
+            const number = document.getElementById("numberInput").value.trim();
           
-             // Hash the student ID using SHA-256
-             const hashedNumber = await sha256(number);
+            if (!number) {
+              document.getElementById("result").innerHTML = "학번을 입력하세요!";
+              return;
+            }
           
-             // Define a lookup table with hashed keys
-             const lookupTable = {
-                // Precomputed SHA-256 hashes
-                "3ddb24ca4805e952801edd05be851f2b7043f0d2aa019e6f8b92263d56ee6b8f": "",
-                "c376b8081d1fb0045ca03dddae05482f4c60db53aee03f99c3f868ba8267cb52": "",
-                "00d1f839eb32f2ca6b6877bb9573236f04ef5e8bd44ef7a52138ca339d495826": "",
-                "c4aeeafa54fcc0f61cf81b23203f1dbefa4040528bf0b8f67cb8f3a5135888ef": "",
-                "e223eae3c6c8d081fc270d4eaeafaed7e2ee9774e5195f749647f75d33ea1364": "",
-                "334ee220a7bc16ed027b7bb2ccfc1665d4f23486068cf0cf57929996f089c3bf": "",
-                "b48950adac4c1d621841b0607e35d3a87140f6e742d5bfba8a4c30bbf435601e": "",
-                "367b69689a9c6517a878835cbb32f6e9e76c4ae48589e9167cf955367f42cf1c": "",
-                "597595f109ab2bd7e1129077990c02e3986be584970744420ec9bd115188b5e9": "",
-                "88ee5304bad64bff66d8147a55cda96942b19275750b5c166ba7da1c4e0a70b8": "",
-                "406f335cebbdc23073450671e6a0f081ebcb3ed9501360ddd0d618eff0645fe5": "",
-                "2e12dd559703bd4e7cd7c57036ad55f5dffaeded236fed28fd34a7b7e0cf733c": "",
-                "f76d9febf527a466bb3da23123881286b3a9ae7d1cb9d9286de63aedb757f595": "",
-                "68898bc911e75523275e72bbf9dacb80fc8e90bfe53bcdd25d7d02f5013d5adc": "",
-                "65f885461d4a5dc702625e18aafbe952157011fd5473b7d2414edf28e081af3d": "",
-                "af10292e11a0cf191d6fc7407cfe300a54f994db9bcff418606b90e5cac42e4d": "",
-                "039974ffc9e6535711f972897b8efadc72fee413e9e50f45b654d595020ce187": "",
-                "8e2cae71bf9130466a668b1117eda2fa2ae1a436b0968fb6d18e2e9e8a6cd58b": "",
-                "a4194a977e1e34866b8e5ae3fafa8459e65d25127cbffa38f3d1ef0e03ed84bf": "",
-                "86e833ea5fe7ac3a68ff18380511c2e430621d4c2c842b8d398739f5fddb8810": "",
-                "0fd01d099e1c608d4e7509d3bed165361e5b544c788f362eb2dd1c4ec01a4d8a": "",
-                "66dd3551147436c32f580ea6a2d575bb9b29b871f0e4bd382349241ed7a4a452": "",
-                "9f196e520bcff8d13310e4e191d950769ef77a774198ab89c28dda537395ac99": "",
-                "fa3ec60535e190010889f7a6a5f37b4f5859977ad4ba647c0d26ea65ae685724": "",
-                "7098292997ec04448b306cbc3199d75b212bea62ba4a66a14e1adf0e31b5873e": "",
-                "1d1b539d482af76250a50ad9bf0f33d940232b36c2a90255119bb70c1f65ad9a": "",
-                "8d1054d7883cd598b54f2bc22fd44244228444b3515590374655ce1791b962df": "",
-                "11e6816651eeba9c7f3f5908403281dc7c8578a233ad4e07619269cebd4f3ff5": "",
-                "23e153357e6df30c9c80a289748d5d15bba1cf05032908d05d2368c9bac8f226": "",
-                "d073442fb3e4c14f1bdca6bb43e9b2f25bce50588bb0e13e1efd019f1cce4237": "",
-                "7e14dd1bbd09ed5be155035d935cbc83e83e87a60af5179e957b04177d6da1c7": "",
-                "e8f33bc444d505ce08db3539ce0c3cc24e7f952811dbc090f964056b10abacd2": "",
-                "d5398a5f23848bffcbff1a55ff69d49fc7fdc7e35fc3c80f978ab6b3c820f893": "",
-                "3a610f3110dfcc2bb8932345644d1e978a55d96449a9915186259d28b8695bec": "",
-                "a44383f51939e036bb1754ee53d5e03e94d36f2ba8d39c9d6ae658be1ade6444": "",
-                "f8f2eb413ff10b7382613c05b2473f66c93b6c147f8de7cd8355682977b32b24": "",
-                "6f35aaa39bc51865351349a16b5aa782265ce51c9ca241e88ac6cbc7dfe5a513": "",
-                "85dfec5a68e607e9161cdce7a95cc6fb02af63fdc3a38652b61d14dc08f311de": "",
-                "08e56e106da825717db3075117291af76fe5973b5ae872f7b8a61c940e884425": "",
-                "5d88b87fa3a95d17caeeab4d9844536bf561b51f1840d3bce599c35505e91ce8": "",
-                "4d06866b0108c90f232e7507aa7a69745390e331847ea621f8881e30da7a8233": "",
-                "92e86069121ca6687f0301600cb63fc362b28aaca050be9710beed2bd19236b4": "",
-                "323163e3b1dcdf423a4909a3d47dd19a51178b48bf5f20def268e62f6eba1e5c": "",
-                "510725597f0016321485a141451bd8cfeca84969f16aed80d99621a8607f08de": "",
-                "6f03ebabe6cf226a7bb8e74935a67bcb151eb7aec8de53fa882ec75cefa4ef2e": "",
-                "144b8563a0c3840b6e681e68cad3658b440cca532cce68f024b58127493b8f4c": "",
-                "2c86152079f9feb0630978de1ad2e4dd093c253946f855631305fcbb48baa6ae": "",
-                "7dd78a9f67342c8de583334577e3e372eb46434a936863a3eced4cfb2bb3f243": "",
-                "32ab62b6745657723ada4d405943438435bc9d266e5189044b16d1e4e1e66fc2": "",
-                "3d30e850482cab6664a91b60e57790df49db4fad1a8d283e0640fbc73c5bdf94": "",
-                "ef26bb87b0a7ed4e46eefb7bf8377f60e5da4a0d67e7347f7c8b96cbd4767b94": "",
-                "95f9f3f335b2d213b9664abccb73fcf7675ae0d0ad6fe7e26c0f54e31fcf6586": "",
-                "9e9d083897b1d42657acad5f4479bf3fa10ebb1a3760a1131ea3fdde8aa7bba0": "",
-                "58f5b6eb79561c6188ce8913ae5f247580e4397d1a91d4019c3f9bb6c1584a6c": "",
-                "fc195f1164a6b6d89b80d847b4401c22900c711978a98284d2ddd9e760b281d6": "",
-                "b0339f16e8d1fd34e96faebb9f3ca4cca99284472aa9c8d61105220f7db476fe": "",
-                "ef9de80f4add4e65214203cda5ac1012c4263d8ab7688125b88b033de2626562": "",
-                "5e3302bc3cf6d101a8308a101c87f562cb5786166e16989e281eae749ef9f22a": "",
-                "4a311e5367889eec40bf08275a52f7329663098bd57bee4896324eebfe0a19df": "",
-                "23882a59f8593e40d25a0a8d7c7c3c18471de229e7d53c8a6766527ead43f89c": "",
-                "0223181387ca96f97ab402b9f7baa949eca0f5f834fa2471a88037f185ba33df": "",
-                "358598d2a31a3034dd7586c9deabf59c6e2a93c5b4363b4c90fb8fd5ad1d9bf7": "",
-                "de3d36a7e38a8313c737ab5c92cf37d62c6c81e1aac3388a0c5c3c23a258a021": "",
-                "88b7f5bbc0de5bfc62f89dcc2ebb429d05b288613f8fb0c954ff837cdca76f9f": "",
-                "ffdc50632334e5b97db66596f04ada975726dac94bba85520e6a78dd1cc779fc": "",
-                "5d3857497cd496d9f9b02d8882b087de0dd805a7cfb7d49b40ee6464729d0dc6": "",
-                "88a7dd6d7bfebda4b093ea00bb417cf6d08e9e08cacfee80e52eb38d5a521932": ""
-             };
+            const hash = await sha256(number);
+            const encrypted = lookupTable[hash];
           
-             // Query the result
-             const result = lookupTable[hashedNumber];
+            if (!encrypted) {
+              document.getElementById("result").innerHTML = "학번과 분반을 확인하세요!";
+              return;
+            }
           
-             // Display the result
-             if (result !== undefined) {
-                document.getElementById("result").innerHTML = "초회된 성적은<br>" + result + "<br>입니다.";
-             } else {
-                document.getElementById("result").innerHTML = "학번과 분반을 확인하세요!";
-             }
+            const key = padKeyTo16(number);
+            
+            console.log("Student ID entered:", JSON.stringify(number));
+            console.log("Key (string):", JSON.stringify(key));
+            console.log("Key length:", key.length);
+            
+            for (let i = 0; i < key.length; i++) {
+              console.log("key[" + i + "] =", key.charCodeAt(i));
+            }
+            
+            try {
+              const decrypted = await decryptText(encrypted, key);
+              document.getElementById("result").innerHTML = "조회된 성적은:<br>" + decrypted;
+            } catch (e) {
+              document.getElementById("result").innerHTML = "복호화 실패: 키 또는 데이터 불일치";
+            }
           }
           </script>
         <h3 id="projects" class="mb-4">Projects</h3>

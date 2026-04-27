@@ -283,63 +283,170 @@
           <p id="result"></p>
 
           <script>
-          async function sha256(input) {
-            const encoder = new TextEncoder();
-            const data = encoder.encode(input);
+          // === SHA-256 ===
+          async function sha256(str) {
+            const data = new TextEncoder().encode(str);
             const hashBuffer = await crypto.subtle.digest("SHA-256", data);
             const hashArray = Array.from(new Uint8Array(hashBuffer));
-            const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
-            return hashHex;
+            return hashArray.map(b => b.toString(16).padStart(2, "0")).join("");
           }
+          
+          // === Key padding (Python compatible) ===
+          function padKeyTo16(keyStr) {
+            if (keyStr.length >= 16) return keyStr.slice(0, 16);
+            return keyStr.padEnd(16, "\x00");
+          }
+          
+          // === Helper: concatenate Uint8Arrays ===
+          function concatUint8Arrays(a, b) {
+            const merged = new Uint8Array(a.length + b.length);
+            merged.set(a);
+            merged.set(b, a.length);
+            return merged;
+          }
+          
+          // === AES-GCM decrypt (Python compatible) ===
+          async function decryptText(base64Data, keyString) {
 
+          //console.log("=== decryptText START ===");
+          //console.log("Base64 input:", base64Data);
+          //console.log("Key string (with escape):", JSON.stringify(keyString));
+          //console.log("Key length:", keyString.length);
+       
+          // Log key bytes
+          const keyBytes = new TextEncoder().encode(keyString);
+          //console.log("Key bytes:", Array.from(keyBytes));
+       
+          // Decode base64
+          let raw;
+          try {
+             raw = Uint8Array.from(atob(base64Data), c => c.charCodeAt(0));
+          } catch (e) {
+             //console.error("atob() failed:", e);
+             throw e;
+          }
+       
+          //console.log("Raw data length:", raw.length);
+          //console.log("Raw data bytes:", Array.from(raw));
+       
+          // Extract nonce, ciphertext, tag
+          const nonce = raw.slice(0, 16);
+          const tag = raw.slice(raw.length - 16);
+          const ciphertext = raw.slice(16, raw.length - 16);
+       
+          //console.log("Nonce length:", nonce.length);
+          //console.log("Nonce bytes:", Array.from(nonce));
+          //
+          //console.log("Ciphertext length:", ciphertext.length);
+          //console.log("Ciphertext bytes:", Array.from(ciphertext));
+          //
+          //console.log("Tag length:", tag.length);
+          //console.log("Tag bytes:", Array.from(tag));
+       
+          // Import AES key
+          let aesKey;
+          try {
+             aesKey = await crypto.subtle.importKey(
+                   "raw",
+                   keyBytes,
+                   { name: "AES-GCM" },
+                   false,
+                   ["decrypt"]
+             );
+             //console.log("AES key imported OK");
+          } catch (e) {
+             //console.error("Key import failed:", e);
+             throw e;
+          }
+       
+          // Try decryption
+          //console.log("Attempting AES-GCM decrypt...");
+          try {
+             const decryptedBuf = await crypto.subtle.decrypt(
+                   { name: "AES-GCM", iv: nonce },
+                   aesKey,
+                   concatUint8Arrays(ciphertext, tag)
+             );
+       
+             const decryptedText = new TextDecoder().decode(decryptedBuf);
+             //console.log("Decryption succeeded.");
+             //console.log("Decrypted text:", decryptedText);
+             //console.log("=== decryptText END ===");
+       
+             return decryptedText;
+       
+          } catch (e) {
+             //console.error("Decryption FAILED!");
+             //console.error("Error:", e);
+             //console.log("=== decryptText END WITH ERROR ===");
+             throw e;
+          }
+       }
+          
+          const lookupTable = {
+                                "76c216bdf67942d58a575289b029df26bb128f341e796fd0da60f9e75b9e7937": "Cns56oRTVspkIZcVJiAiLWddh7u2rz39mrOWNvmB79wXkSRv",
+                                "de42f5661b5e42f7769c6152e0b410786de258d6002e1e613cab7871117e768b": "c42/VfchMFkcRw5NqqSNaeKGftlcwPMte5luzW72JadSEA==",
+                                "2733af4da34e2867af53be13004663b14aeabffbd91a749a9e29a4143b77d73d": "XfNgPG/M/Dno4wAAelW+bPZVB+LaoOVqOgItJ9naxqF0Uw==",
+                                "011e6fb8587f2058d0f6371f2ab0241d5825982a757c4c5bb429f10006e51d8b": "Byluh/3wkh+QgFEYd15XSI6WAeddHofEdfbCxWL7Gk2XohA=",
+                                "5714f6888e156e50c15b2da3f043904c0e62a9e0246308c29462f9604a169732": "KRtMetwYN9U54Ptt2tEtWzIDAvD6fBF/1qFxlJmrwW4E",
+                                "2d371a0b6778ebeaa1733a560f5b8d37b77b6045705587ee8783e0b55a585147": "Gh3xCRERK2ExyH3+qCcLtofQYt6RWBR+v+6nQDOFyidTFQ==",
+                                "5264950b62abd612e67a971077475b15e35f91d954799a4e41deaed1072ad209": "2tDcuWfaVX8QvxRAsLvNLsDTdIj52dGSVRBivILzt5cugA==",
+                                "db038eadad566aa016b90d4cee81336464195f3eb965a1d2c5aec8cb5f8400ec": "NEWgfGR42qCuSpt31ne1LmrrdJqO96qAIjCIbhPSq0aSeQ==",
+                                "72fe585c02220a8e10e1d0d7f2a9522cf30598f24a8c4b4b25f9a35297555809": "KIaKXs3hIUO0prnszyDrNoFfELa60XnnG2lNmSC6r00wgA==",
+                                "578daef9ad0d6bacef4d4361eddff8b00f02f197cbff05251b7d9b454771db28": "z/6DizabzgIFPm4aciEmK5Urr+vmxTo9ezqat+fO6vImxA==",
+                                "a4cdf5ef6b2014aaa90ad7a32ebd3fd4c3b43eb49ee965bde72aab8130820046": "lNE/x1Cthqpp05e3z9alm9DZvNhqVcJ57rE5MVGEB0mU8w==",
+                                "c19fa37c291ea2b7652db2c17d8b4307b5d9dcbb193528c0127ed523ccaba96d": "iXUsZCyhp0jiHH73LKudJc+tfWe939OAs0hpP8IOAqHm/A==",
+                                "8f01aa3c034f63944f0211eec9b15a299eff60c8f3cc7a891219a9720cdba6eb": "POmapw0NsTZKjcpfRzfYZMX12oJ7VsQ0F012fBdybKP6+A==",
+                                "8b6e17c2a4b417d4acb0be55bf688d49f81736c5dff79d6b57ef199066937ad3": "Rm9Cv3i1S8YaHWBf8a6+Yt19ixMpzqDDldsb1UPucp5l/g==",
+                                "40fde68675d804b01d4a00328762558aaccb2b30814ab62249c3f1e1dcdc8d3b": "telHWx3eXAzlYlGjzItvEXXqk10eJteV84v4DdYPbbg7",
+                                "b8f8597b87fec6894efb1aec2474cff19c7e9a8e557338d7f1f9858fe8fd2f8f": "Py0qgOK42hsP/LQR2cKHTFuDZ0ZK+nG0mLgBJXp7eF8QBg==",
+                                "87e21c2ba622dd1f6b611f3b68fdfe8b6413ec1727f0e8bd10fe6666b8f74cd8": "oZHsEkEIt2rE6obZC723im6oM9zK4CzLjlKuAQJhC1rZye66",
+                                "043e5a72b65fe875defffc14a6c5ff3582d79be1c785a5d96636c6e17d0dac65": "l4hA1pNHG6xVB/aJHxqw+zLGGQooai5PlliXkyNI3LaJOQ==",
+                                "1fc730155358ec5fd26e1cfd77c2d27ae7e7c35b084cc96b7d082d1956f5f0ce": "UlGHdy/DVJx427fuREhnt3yzmfiOQw1hr3tuKPNKlJuA",
+                                "231a6bcfefa23b276039d9154e7820b02e446e7c0a9d6ce20315071c4677e827": "Vz8BghOwzgcs53mgrgvPU+oTHRvTB8b3GCy5Ojbp74cFWA==",
+                                "0362d7c0ed58cc90793ef4ebfc0075eb971b805115d8a2d7eea126e7ac1386ac": "VyuoMSmZfkcElG4J3eOQvWOZIWII5Yp1vOCuEzmuu4hccq9M",
+                                "61abcc9f904d4f316c405c5d238ecfdd9ffafa94ca3f2f9b16288a7bbf8c789b": "WOfca3KcBhoeo341ClqvQnXpzrJiLfovIGUlLF9e4gTrmw==",
+                                "7714b0e487776d89874ae136fdf4abfcaef84c1ab29baa26b6d38b989b8c03fc": "6133PUlkZRKhkZMQIamujfbTVPFnRRpnYhsEuAfm1SN4Fg==",
+                                "b2fc5fcec3b9bc727107e3e8447a9e7f1fafb921577866f68cf240b1f705616e": "DgJJd3/25btp5aF7G5TuBQZSZ7dfucBv5lQ5JpSXnp4hOA==",
+                                "d9a0810a76def89caa34572e6003b8a679892d9d79c5b4ad2a19f08b4cd76e66": "AIzgoHZ8kpaFJOZgk5BZ1rrYM8tbZejjSYvMWqnyBbwK",
+                                "4d9a3ceb5872b4cf529f33318867adc7ac3d3e3fbd131e8a9089d3fcf6992857": "xFGw8yAzA78QiUpbPNUpBIMsg+ffKgDlA3nayI4E5/LsSw==",
+                                "d5c1b25f31fe99772568adc9259ae83b3128e84b0cb610b9d192f88cff0f73be": "8tngq5TMn0soc+Fae5W2eHsyoel3viYox/z3QhgsUotZ7g==",
+                                "7ef5f07e8779577a1fbf7b2a91865d5267ea797e0c41ad5c5f844278f1eae285": "mwMxZQE+xU6cvfVqN1RGm5h6SWGAfh/z//d0NJ5c2FMVMA=="
+                              };
+          
+          // === Main lookup function ===
           async function lookupValue() {
-             // Get the value entered by the user
-             const number = document.getElementById("numberInput").value;
+            const number = document.getElementById("numberInput").value.trim();
           
-             // Hash the student ID using SHA-256
-             const hashedNumber = await sha256(number);
+            if (!number) {
+              document.getElementById("result").innerHTML = "학번을 입력하세요!";
+              return;
+            }
           
-             // Define a lookup table with hashed keys
-             const lookupTable = {
-                // Precomputed SHA-256 hashes
-                "0d00bd68db4fb06f7866c1a3e070135e8db38554f1438c8f6c351e6046ca1c3c": "",
-                "61b22acb361c7764797b642c2c59d99d8780f4ac49456d9acc1d453863196d89": "",
-                "193e446e72f4a577c7671e1f9adad02f16cc21ae4798883dcc91423caa0c3fc4": "",
-                "512996847cf6a457719ae33c28b29dfd3aac17ff8bb2f61d16a87a9e087075da": "",
-                "f57a2edbefb8e6f1ff7049aa72f32965195aeac8cf36677e5b84d5ed65734bf3": "",
-                "2c29aada813e3ed37656fcb6bccb259def58a95d7df21cc25c247da2371050fb": "",
-                "6b82a87b2fb973a69e556af9e373f1e1b9dd15184b8555d64b626d7397ec28f8": "",
-                "8ade2e8f7f871747bc8ff7ee79cf931e7badf3b17d1f180c0a7637c81c17327f": "",
-                "250bbbcf26e335ce30d7c51324f6323a1da331f0fa622dfeff7386c18c437e89": "",
-                "bdd3cbf7961121f06af4e14c1c125a0478c604437bb4ddcf006ecaabe3a704d3": "",
-                "be56ac3ff07f5f90dbd2fc26a6a3466977acae028f76ae49b6c232203e67a6ad": "",
-                "65f885461d4a5dc702625e18aafbe952157011fd5473b7d2414edf28e081af3d": "",
-                "e4aec088f64bd1ac32dc8624a16597d66dae858ac239ee02546083e51590dac3": "",
-                "a18fab2537694264b2899def7a4b68eb8d4ad4e3d46a5c536d89e85efc302f94": "",
-                "00e836b205a09d1a3261f680542c47d99575acaffd85283bb1ab5570d90d00fc": "",
-                "a7f6262b7e8ae20cc0b8531222245f74020a971c3f1b33d026bab9b9cc5f7f49": "",
-                "332e931827ef386e9c8e2ff36a4678f28dceb9b665d7f4194d6dcb6a77384f8e": "",
-                "e007e512b483cbb348c4b25e06d779ca4a34692f43e090edf1c659bf277f1ace": "",
-                "c896775b5f7b90ce64b7710fe708732684f6cc69b006da0efba183756cf558ad": "",
-                "3b9fcfdc2d510d299b9ebe49773be4b32b4b99168c73f6ae0e849fc19ac4a9e8": "",
-                "ff5d5578ebf2f2b8e5a21d9ca69b79ecffbb89555654203eff70eaaa5c380450": "",
-                "5994ae2ff726af1e855be4983baa355f260ba4f7ade0cfd1b3127ea14d0b2282": "",
-                "1f8406edfb3e4ce0f37838f7aaa2e3e34e2f2e3b359438e30b91b0317d12977d": "",
-                "a460fde505fc4308ac5ae17b0f256b60e42d985f285a9d05d19e44f442f583b8": "",
-                "a82880440cd5454b48affb20f904105627feb293c82e14ccde32f48887fc6a3f": "",
-                "6d8f20fcc8ebd7ba00f821018a2df2bcfe78a2623e05f03b4569a37735ccb40f": "",
-                "bc1c6892aaa439cc5dd81a7db4512040e16bd94fd4a318e7b871f97c0f13ab08": ""
-             };
+            const hash = await sha256(number);
+            const encrypted = lookupTable[hash];
           
-             // Query the result
-             const result = lookupTable[hashedNumber];
+            if (!encrypted) {
+              document.getElementById("result").innerHTML = "학번과 분반을 확인하세요!";
+              return;
+            }
           
-             // Display the result
-             if (result !== undefined) {
-                document.getElementById("result").innerHTML = "초회된 성적은<br>" + result + "<br>입니다.";
-             } else {
-                document.getElementById("result").innerHTML = "학번과 분반을 확인하세요!";
-             }
+            const key = padKeyTo16(number);
+            
+            console.log("Student ID entered:", JSON.stringify(number));
+            console.log("Key (string):", JSON.stringify(key));
+            console.log("Key length:", key.length);
+            
+            for (let i = 0; i < key.length; i++) {
+              console.log("key[" + i + "] =", key.charCodeAt(i));
+            }
+            
+            try {
+              const decrypted = await decryptText(encrypted, key);
+              document.getElementById("result").innerHTML = "조회된 성적은:<br>" + decrypted;
+            } catch (e) {
+              document.getElementById("result").innerHTML = "복호화 실패: 키 또는 데이터 불일치";
+            }
           }
           </script>
         <h3 id="projects" class="mb-4">Projects</h3>
